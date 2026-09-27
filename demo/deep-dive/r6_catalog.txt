@@ -1,0 +1,28 @@
+  THE RENDERER CONTRACT        androidx.a2ui.compose.ui        12 types
+
+  interface A2uiComponent {
+      val name: String                               // "Button"
+      val description: String
+      val properties: List<A2uiProperty<*>>          // its schema
+      fun isReady(scope, props): Boolean             // default: true
+      @Composable fun Content(scope, props, modifier)
+  }
+
+  interface A2uiCatalog {
+      val id: String                                 // the catalogId on the wire
+      val components: A2uiComponentCollection
+      val functions: A2uiFunctionCollection
+      val themeSchema: A2uiSchema
+      fun isInline(): Boolean                        // default
+  }
+
+  interface A2uiComponentCollection : List<A2uiComponent> {
+      operator fun get(name: String): A2uiComponent
+  }
+
+  interface A2uiFunctionCollection : List<A2uiFunction> {
+      operator fun get(name: String): A2uiFunction
+  }
+
+  Nothing here mentions Material. material3-a2ui is one implementation.
+  A processor takes a LIST of catalogs, so yours can sit alongside it.

@@ -1,0 +1,33 @@
+  THE BUILT-IN FUNCTION LIBRARY      androidx.a2ui.model.catalog.functions
+
+  interface A2uiFunction {
+      val definition: A2uiFunctionDefinition
+      fun execute(args: Map<String, Any?>, context: A2uiExecutionContext): Any?
+  }
+
+  VALIDATION          A2uiRequiredFunction      required
+                      A2uiEmailFunction         email
+                      A2uiNumericFunction       numeric
+                      A2uiRegexFunction         regex
+                      A2uiLengthFunction        length
+
+  LOGIC               A2uiAndFunction           and
+                      A2uiOrFunction            or
+                      A2uiNotFunction           not
+
+  FORMATTING          A2uiFormatStringFunction    formatString
+                      A2uiFormatNumberFunction    formatNumber
+                      A2uiFormatCurrencyFunction  formatCurrency   (locale)
+                      A2uiFormatDateFunction      formatDate       (locale)
+                      A2uiPluralizeFunction       pluralize   (formatter+locale)
+
+  SIDE EFFECT         A2uiOpenUrlFunction       openUrl          (url opener)
+
+  Stateless ones are singletons: A2uiRequiredFunction.INSTANCE
+  Locale-aware ones take their dependency in the constructor. That is
+  why the Material catalog factory demands a locale provider, a message
+  formatter and a URL opener -- it is constructing these for you.
+
+  Look up by name at runtime:  catalog.functions["formatCurrency"]
+
+  These run ON THE CLIENT. Validation does not round trip.

@@ -1,0 +1,18 @@
+  THE FIVE ARTIFACTS, ACROSS THREE MAVEN GROUPS
+
+  androidx.a2ui                          the data layer
+    a2ui-model         1.0.0-alpha01     schema + data models
+    a2ui-engine        1.0.0-alpha01     protocol parsing, message processing
+
+  androidx.a2ui.compose                  the renderer
+    compose-runtime    1.0.0-alpha01     component scope, properties, parser
+    compose-ui         1.0.0-alpha01     A2uiCatalog, A2uiComponent, processor
+    compose-ui-testing 1.0.0-alpha01     test helpers
+
+  androidx.compose.material3             a ready-made catalog
+    material3-a2ui     1.0.0-alpha01     all 18 Basic Catalog components in M3
+
+
+  The androidx.a2ui group index lists ONLY a2ui-model and a2ui-engine.
+  Neither has a Compose dependency. Stop reading there and you will
+  conclude Android has no renderer.

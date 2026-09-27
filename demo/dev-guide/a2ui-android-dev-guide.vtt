@@ -1,0 +1,497 @@
+WEBVTT
+
+1
+00:00:04.000 --> 00:00:08.305
+This is a working guide to the Android A2UI libraries as they stand in alpha.
+
+2
+00:00:08.305 --> 00:00:11.212
+By the end you will know what is published and where
+
+3
+00:00:11.212 --> 00:00:15.517
+how to wire a renderer into a Compose app, how the protocol works on the wire
+
+4
+00:00:15.517 --> 00:00:19.263
+how data binding and user actions close the loop back to your agent
+
+5
+00:00:19.263 --> 00:00:22.953
+and the ten traps that will otherwise each cost you a build cycle.
+
+6
+00:00:22.953 --> 00:00:25.972
+Everything shown here is running code, not pseudocode.
+
+7
+00:00:25.972 --> 00:00:31.116
+Two projects back it: one that renders a static payload, and one that talks to a live agent.
+
+8
+00:00:31.116 --> 00:00:33.352
+Start with what is actually published.
+
+9
+00:00:33.352 --> 00:00:36.766
+Five artifacts, spread across three separate Maven groups.
+
+10
+00:00:36.766 --> 00:00:40.415
+The androidx dot a 2 u i group holds the data layer: the model
+
+11
+00:00:40.415 --> 00:00:43.182
+which is schemas and data types, and the engine
+
+12
+00:00:43.182 --> 00:00:46.713
+which parses protocol messages and drives the state machine.
+
+13
+00:00:46.713 --> 00:00:50.598
+The androidx dot a 2 u i dot compose group is the renderer itself.
+
+14
+00:00:50.598 --> 00:00:58.721
+And the third group, under Material 3, holds a ready-made catalog: all eighteen Basic Catalog components, already implemented in Material.
+
+15
+00:00:58.721 --> 00:01:04.371
+Now the first trap, and it is the most expensive one, because it stops people before they start.
+
+16
+00:01:04.371 --> 00:01:08.668
+The androidx dot a 2 u i group index lists only the model and the engine.
+
+17
+00:01:08.668 --> 00:01:10.846
+Neither carries a Compose dependency.
+
+18
+00:01:10.846 --> 00:01:15.261
+Read only that page and you will conclude Android has no renderer. It does.
+
+19
+00:01:15.261 --> 00:01:17.262
+It is simply in a different group.
+
+20
+00:01:17.262 --> 00:01:18.459
+So let us wire one up.
+
+21
+00:01:18.459 --> 00:01:22.216
+Three things to get right in Gradle, and two of them are not obvious.
+
+22
+00:01:22.216 --> 00:01:24.946
+Here is the dependency block from a working app.
+
+23
+00:01:24.946 --> 00:01:31.600
+A Compose bill of materials, the usual Compose UI and Material 3, activity Compose, and then the five A2UI artifacts.
+
+24
+00:01:31.600 --> 00:01:37.514
+Everything resolves from Google's Maven repository, so make sure google is listed in your settings file.
+
+25
+00:01:37.514 --> 00:01:42.291
+All five are pinned to the same alpha version, and you should keep them in lockstep.
+
+26
+00:01:42.291 --> 00:01:49.400
+This is alpha software: the artifacts are released together and there is no compatibility promise across mismatched versions.
+
+27
+00:01:50.536 --> 00:01:54.092
+Now the Android block, and two traps. First, the plugins.
+
+28
+00:01:54.092 --> 00:01:59.583
+There are only two here: the Android application plugin and the Compose compiler plugin.
+
+29
+00:01:59.583 --> 00:02:08.380
+Android Gradle Plugin nine rejects the old Kotlin Android plugin outright, with an error telling you it has not been required since AGP nine.
+
+30
+00:02:08.380 --> 00:02:14.869
+If you copied a template from last year, delete that line, and delete the J V M toolchain block with it.
+
+31
+00:02:14.869 --> 00:02:16.865
+Second, look at the compile SDK.
+
+32
+00:02:16.865 --> 00:02:24.165
+Targeting thirty seven point one is not one property, it is two: compile SDK thirty seven, and compile SDK minor one.
+
+33
+00:02:24.165 --> 00:02:27.347
+And use the J D K that ships inside Android Studio.
+
+34
+00:02:27.347 --> 00:02:31.028
+Newer J D Ks break the build in ways that are hard to read.
+
+35
+00:02:31.028 --> 00:02:34.847
+With the project building, the first object you construct is a catalog.
+
+36
+00:02:34.847 --> 00:02:38.398
+It tells the renderer which components exist and how to draw them.
+
+37
+00:02:38.398 --> 00:02:41.507
+If you use the Material catalog, you call this factory.
+
+38
+00:02:41.507 --> 00:02:46.653
+Notice that it takes six parameters and none of them have defaults, which surprises people.
+
+39
+00:02:46.653 --> 00:02:51.346
+The library deliberately ships no image loader, no video player and no audio player
+
+40
+00:02:51.346 --> 00:02:55.756
+because those are opinionated dependencies and it will not choose one for you.
+
+41
+00:02:55.756 --> 00:03:00.563
+You supply them, along with a URL opener, a message formatter, and a locale provider.
+
+42
+00:03:00.563 --> 00:03:07.743
+If your payload never uses images, video or audio, no-op implementations are perfectly legitimate, which is what this app does.
+
+43
+00:03:08.958 --> 00:03:12.095
+Here is how you write one, and here is the third trap.
+
+44
+00:03:12.095 --> 00:03:19.417
+The concrete Material implementations of image, video and audio are marked internal, so you cannot reference or subclass them.
+
+45
+00:03:19.417 --> 00:03:21.741
+Implement the public interfaces instead.
+
+46
+00:03:21.741 --> 00:03:27.436
+And note the shape of the function: Typed Content is an extension function on A2UI component scope
+
+47
+00:03:27.436 --> 00:03:31.271
+not a plain override, and its accessibility parameter is nullable.
+
+48
+00:03:31.271 --> 00:03:33.944
+Getting that signature wrong by hand is fiddly
+
+49
+00:03:33.944 --> 00:03:38.128
+so let the Kotlin compiler print its potential signatures for overriding
+
+50
+00:03:38.128 --> 00:03:39.697
+and copy what it gives you.
+
+51
+00:03:40.438 --> 00:03:43.318
+That is the setup done. The rendering itself is short.
+
+52
+00:03:43.318 --> 00:03:45.523
+Six lines, and this is the whole of it.
+
+53
+00:03:45.523 --> 00:03:48.577
+Create a message processor from your list of catalogs.
+
+54
+00:03:48.577 --> 00:03:53.667
+Launch a coroutine that calls collect messages, which drains the processor's inbound queue
+
+55
+00:03:53.667 --> 00:03:56.834
+and keep it alive for as long as the screen is composed.
+
+56
+00:03:56.834 --> 00:04:02.093
+Forgetting that one line is a common mistake, and the symptom is a screen that never updates.
+
+57
+00:04:02.093 --> 00:04:03.676
+Feed each parsed message in.
+
+58
+00:04:03.676 --> 00:04:08.314
+Then collect active surfaces as Compose state, and hand a surface to A2UI Surface.
+
+59
+00:04:08.314 --> 00:04:12.385
+From there the library owns the tree, the diffing and the recomposition.
+
+60
+00:04:13.438 --> 00:04:17.488
+And that is enough to produce this: a brokerage positions screen, scrolling
+
+61
+00:04:17.488 --> 00:04:21.700
+with every component driven by a payload rather than by layout code you wrote.
+
+62
+00:04:25.821 --> 00:04:30.520
+Now the wire. Understanding three message types is most of understanding A2UI.
+
+63
+00:04:30.520 --> 00:04:34.122
+Create surface opens a surface and names the catalog it will use.
+
+64
+00:04:34.122 --> 00:04:39.885
+Update components sends components, and here is the important idea: it is an adjacency list, not a tree.
+
+65
+00:04:39.885 --> 00:04:44.374
+Each component has an identifier and refers to its children by their identifiers.
+
+66
+00:04:44.374 --> 00:04:46.813
+The component named root is the entry point.
+
+67
+00:04:46.813 --> 00:04:52.742
+Because it is a flat list, you can send components before their children exist, and fill in the gaps later.
+
+68
+00:04:52.742 --> 00:04:56.068
+Update data model sends the values those components bind to.
+
+69
+00:04:56.068 --> 00:05:03.660
+Keep these separate in your head: structure and data travel independently, and that separation is what makes streaming and updates cheap.
+
+70
+00:05:04.480 --> 00:05:07.147
+Which brings us to how a component gets its value.
+
+71
+00:05:07.147 --> 00:05:12.500
+Instead of a literal, a property can take a path: a JSON pointer into the surface's data model.
+
+72
+00:05:12.500 --> 00:05:16.331
+A text field pointing at slash amount displays whatever lives there.
+
+73
+00:05:16.331 --> 00:05:20.107
+The part people miss is that on inputs this binding runs both ways.
+
+74
+00:05:20.107 --> 00:05:25.854
+When the user types in that field or ticks that checkbox, the client data model is updated underneath.
+
+75
+00:05:25.854 --> 00:05:28.277
+Nothing round trips to your agent for that.
+
+76
+00:05:28.277 --> 00:05:32.616
+It is local, immediate, and it is why a form feels native rather than remote.
+
+77
+00:05:33.907 --> 00:05:37.748
+Separating structure from data also buys you progressive rendering.
+
+78
+00:05:37.748 --> 00:05:39.066
+Watch this form arrive.
+
+79
+00:05:39.066 --> 00:05:41.589
+The agent sends it as four messages, not one
+
+80
+00:05:41.589 --> 00:05:46.290
+so the client draws each piece as it lands: heading first, then the card of fields
+
+81
+00:05:46.290 --> 00:05:50.302
+then the button, and finally the data model that fills every field in.
+
+82
+00:05:50.302 --> 00:05:53.570
+The user sees structure immediately instead of a spinner.
+
+83
+00:05:56.282 --> 00:05:59.832
+So far everything flows one way. Here is how it comes back.
+
+84
+00:05:59.832 --> 00:06:05.000
+A button carries an action, and that action names an event plus the context to send with it.
+
+85
+00:06:05.000 --> 00:06:11.291
+When the user taps, the processor emits on outbound events, which is a Kotlin flow of client to server messages.
+
+86
+00:06:11.291 --> 00:06:18.930
+This is the piece that is not in the documentation, so it is worth writing down: outbound events is the hook for everything a user does.
+
+87
+00:06:18.930 --> 00:06:22.919
+Collect it, serialise the event, and send it wherever your agent lives.
+
+88
+00:06:22.919 --> 00:06:24.548
+Here that is an H T T P post.
+
+89
+00:06:24.548 --> 00:06:29.828
+The agent's reply streams straight back into the same processor, and the next surface renders.
+
+90
+00:06:31.192 --> 00:06:35.214
+Here it is end to end. Ticking the box writes to the client data model.
+
+91
+00:06:35.214 --> 00:06:38.727
+Tapping review sends the event, with that data model attached.
+
+92
+00:06:38.727 --> 00:06:43.542
+The agent fills a template with the values the client just sent, and streams it back.
+
+93
+00:06:43.542 --> 00:06:49.208
+Look at the frequency row: it reads Monthly, because the checkbox made the trip and came home again.
+
+94
+00:06:49.208 --> 00:06:52.551
+Two surfaces, one round trip, no layout code on the client.
+
+95
+00:06:52.790 --> 00:06:56.166
+Before you build anything, here is the whole list in one place.
+
+96
+00:06:56.166 --> 00:06:59.483
+The build traps we covered. The catalog traps we covered.
+
+97
+00:06:59.483 --> 00:07:03.790
+The four at the bottom are the dangerous ones, because none of them throw.
+
+98
+00:07:03.790 --> 00:07:07.748
+They render the wrong screen and leave you looking at your own code.
+
+99
+00:07:07.748 --> 00:07:11.065
+Update data model takes a key called value, not contents.
+
+100
+00:07:11.065 --> 00:07:15.081
+Get that wrong and the form renders perfectly with every field empty.
+
+101
+00:07:15.081 --> 00:07:19.621
+The variant enumerations are small and strict: text variants are h1 through h5
+
+102
+00:07:19.621 --> 00:07:20.552
+caption and body
+
+103
+00:07:20.552 --> 00:07:25.674
+so body medium is not valid and it will draw a red error chip where your text should be.
+
+104
+00:07:25.674 --> 00:07:28.700
+Button variants are default, primary and borderless.
+
+105
+00:07:28.700 --> 00:07:33.531
+And icon names are camel case, so check works and check underscore circle does not.
+
+106
+00:07:33.531 --> 00:07:39.002
+When a component renders as an error chip, suspect an enum value before you suspect your code.
+
+107
+00:07:41.606 --> 00:07:45.155
+One last thing, and for most teams it is the most important part.
+
+108
+00:07:45.155 --> 00:07:47.704
+The renderer does not know what Material is.
+
+109
+00:07:47.704 --> 00:07:51.064
+These are the two interfaces the whole system is built on.
+
+110
+00:07:51.064 --> 00:07:56.568
+A component has a name, a description, a list of properties, and a composable content function.
+
+111
+00:07:56.568 --> 00:08:02.535
+A catalog has an identifier, a collection of components, a collection of functions, and a theme schema.
+
+112
+00:08:02.535 --> 00:08:07.112
+Material 3 dash a 2 u i is simply one implementation of that catalog interface.
+
+113
+00:08:07.112 --> 00:08:09.082
+If you have your own design system
+
+114
+00:08:09.082 --> 00:08:13.601
+you implement the same two interfaces and register yours instead, or alongside
+
+115
+00:08:13.601 --> 00:08:16.092
+since a processor accepts several catalogs.
+
+116
+00:08:16.092 --> 00:08:21.885
+You keep the protocol engine and supply the pixels, which is the right split for most product teams.
+
+117
+00:08:21.885 --> 00:08:22.890
+That is the guide.
+
+118
+00:08:22.890 --> 00:08:28.362
+The Android documentation page is the official reference, though it carries no code samples today.
+
+119
+00:08:28.362 --> 00:08:31.154
+The source is browsable on cs dot android dot com.
+
+120
+00:08:31.154 --> 00:08:33.444
+And if you are building your own renderer
+
+121
+00:08:33.444 --> 00:08:39.977
+the conformance suites in the A2UI repository are thirty nine language-agnostic test definitions of correct behaviour
+
+122
+00:08:39.977 --> 00:08:44.053
+which is the closest thing to a specification of what a renderer must do.
+
+123
+00:08:44.053 --> 00:08:46.845
+Both projects shown here are on disk and runnable.
+
+124
+00:08:46.845 --> 00:08:51.759
+Start with the static one, then move to the agent round trip once rendering makes sense.

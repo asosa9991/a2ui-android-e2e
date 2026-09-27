@@ -1,0 +1,25 @@
+  THE PROPERTY TYPE SYSTEM        androidx.a2ui.compose.runtime
+
+  abstract class A2uiProperty<T> {
+      val key: String
+      val schema: A2uiSchema
+      val isRequired: Boolean
+  }
+
+  STATIC  (value fixed when the component is sent)
+      StringProperty     NumberProperty     BooleanProperty
+      StringListProperty NumberListProperty BooleanListProperty
+      AnyProperty        AnyListProperty
+      StringEnumProperty NumberEnumProperty EnumProperty
+      ComponentIdProperty  ChildListProperty
+      NestedProperty       NestedListProperty   CustomProperty
+
+  DYNAMIC (value may be a { "path": ... } binding into the data model)
+      DynamicStringProperty   DynamicNumberProperty
+      DynamicBooleanProperty  DynamicStringListProperty
+      DynamicValueProperty    DynamicCustomProperty
+      ActionProperty          ChildListA2uiProperty
+
+  You declare a component's schema by listing these. Static versus
+  dynamic is the whole distinction: dynamic properties can be bound,
+  and only bound properties participate in two-way updates.

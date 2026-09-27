@@ -1,0 +1,11 @@
+  WHERE TO GO NEXT
+
+  Docs        developer.android.com/develop/ui/compose/agentic
+  Source      cs.android.com  ->  androidx-main:a2ui/
+  Protocol    a2ui.org/reference/renderers/
+  Conformance the a2ui repo, conformance/ -- 39 language-agnostic
+              YAML suites that define correct renderer behaviour
+
+  Two working projects from this guide:
+    ~/pocs/a2ui-android-test    static payload, renders from assets
+    ~/pocs/a2ui-android-e2e     agent round trip over HTTP

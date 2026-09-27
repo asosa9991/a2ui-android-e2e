@@ -1,0 +1,19 @@
+# Android / Gradle
+*.iml
+.gradle/
+.kotlin/
+/local.properties
+.idea/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# demo build intermediates and regenerable copies
+demo/**/.demo-video/
+demo/**/page/
+demo/**/publish.*
+*.aiff
+__pycache__/

@@ -1,0 +1,24 @@
+  THE ALPHA, BY THE NUMBERS      273 public types, 20 packages, 5 artifacts
+
+  a2ui-model        84   the vocabulary
+      .protocol             18 message + action types on the wire
+      .processor             8 processor, parser, surface model
+      .catalog              10 function interfaces + definitions
+      .catalog.functions    18 the built-in function library
+      .schema               ~25 JSON Schema model
+
+  a2ui-engine       30   the state machine
+      .processor             8 core processor, action handler, surface actor
+      .catalog                 catalog serialization
+      .platform                platform hooks
+
+  compose-runtime   47   the binding layer
+      A2uiComponentScope       bind / bindUpdater / dispatchAction
+      A2uiComponentProperties  typed property access
+      ~28 property classes     the schema type system
+
+  compose-ui        12   the renderer contract
+      A2uiCatalog, A2uiComponent, A2uiComponentCollection
+
+  material3-a2ui   100   one catalog implementation
+      A2uiSurface, MaterialA2uiDefaults, 18 components, icons

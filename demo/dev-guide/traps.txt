@@ -1,0 +1,28 @@
+  TRAPS, IN THE ORDER YOU WILL HIT THEM
+
+  BUILD
+  1  AGP 9 rejects org.jetbrains.kotlin.android.  Keep only
+     com.android.application + org.jetbrains.kotlin.plugin.compose,
+     and delete the kotlin { jvmToolchain() } block with it.
+  2  compileSdk 37.1 is TWO properties:
+     compileSdk = 37   and   compileSdkMinor = 1
+  3  Use the JDK bundled with Android Studio. Newer JDKs break AGP.
+
+  CATALOG
+  4  materialA2uiBasicCatalogV1() has SIX required parameters and no
+     defaults. The library ships no image, video or audio loader.
+  5  MaterialA2uiBasicCatalogV1Image / Video / AudioPlayer are `internal`.
+     Implement the public A2uiBasicCatalogV1.Image / .Video / .AudioPlayer
+     interfaces instead.
+  6  TypedContent is an extension function on A2uiComponentScope, and its
+     `accessibility` parameter is nullable. Let the compiler print
+     "Potential signatures for overriding" and copy it verbatim.
+
+  WIRE FORMAT   (these render a wrong screen instead of failing)
+  7  updateDataModel takes  "value"  -- not "contents".
+     Symptom: the form renders, every field is empty.
+  8  Text.variant  = h1 h2 h3 h4 h5 caption body
+     "bodyMedium" renders a red Error chip.
+  9  Button.variant = default primary borderless
+     "text" and "secondary" are not valid.
+ 10  Icon.name is camelCase:  check   not  check_circle

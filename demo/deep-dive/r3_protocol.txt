@@ -1,0 +1,25 @@
+  THE PROTOCOL TYPES        androidx.a2ui.model.protocol      18 classes
+
+  SERVER -> CLIENT        sealed by A2uiServerToClientMessage
+      A2uiCreateSurfaceMessage        open a surface, name its catalog
+      A2uiUpdateComponentsMessage     send components (adjacency list)
+      A2uiUpdateDataModelMessage      send the values they bind to
+      A2uiDeleteSurfaceMessage        tear it down
+
+  CLIENT -> SERVER        sealed by A2uiClientToServerMessage
+      A2uiClientEventMessage          a user action + context + data model
+      A2uiClientErrorMessage          something failed on the client
+
+  ACTIONS
+      A2uiUserAction                  surfaceId, componentId, timestamp
+      A2uiEventAction                 named event, sent to the agent
+      A2uiFunctionCallAction          call a catalog function locally
+
+  SUPPORTING
+      A2uiClientDataModel             .surfaces, .toPayloadMap()
+      A2uiComponentPayload            one component as sent
+      A2uiDataPath                    a JSON pointer into the data model
+      A2uiInlineCatalog               a catalog sent inline with the surface
+      A2uiClientCapabilities          what this client can do
+      A2uiExecutionContext            context handed to a function
+      A2uiException / A2uiProtocolConstants

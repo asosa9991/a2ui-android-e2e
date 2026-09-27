@@ -1,0 +1,102 @@
+[
+  {
+    "start": 0.0,
+    "title": "A2UI on Android"
+  },
+  {
+    "start": 4.0,
+    "title": "What this covers"
+  },
+  {
+    "start": 31.11551,
+    "title": "The five artifacts"
+  },
+  {
+    "start": 77.261769,
+    "title": "2 \u2014 Project setup"
+  },
+  {
+    "start": 82.215919,
+    "title": "The dependency block"
+  },
+  {
+    "start": 110.535919,
+    "title": "Two build traps"
+  },
+  {
+    "start": 151.028391,
+    "title": "3 \u2014 The catalog"
+  },
+  {
+    "start": 158.397597,
+    "title": "Six required parameters"
+  },
+  {
+    "start": 188.957597,
+    "title": "The internal-class trap"
+  },
+  {
+    "start": 220.43759699999998,
+    "title": "4 \u2014 Rendering"
+  },
+  {
+    "start": 223.31768799999998,
+    "title": "The render path"
+  },
+  {
+    "start": 253.43768799999998,
+    "title": "What that renders"
+  },
+  {
+    "start": 265.82070899999997,
+    "title": "5 \u2014 The protocol"
+  },
+  {
+    "start": 270.519621,
+    "title": "Three message types"
+  },
+  {
+    "start": 304.47962099999995,
+    "title": "6 \u2014 Data binding"
+  },
+  {
+    "start": 307.14660499999997,
+    "title": "Paths, and both directions"
+  },
+  {
+    "start": 333.90660499999996,
+    "title": "Streaming"
+  },
+  {
+    "start": 356.282405,
+    "title": "7 \u2014 Actions"
+  },
+  {
+    "start": 359.831657,
+    "title": "Outbound events"
+  },
+  {
+    "start": 391.191657,
+    "title": "The round trip on screen"
+  },
+  {
+    "start": 412.790279,
+    "title": "8 \u2014 The traps"
+  },
+  {
+    "start": 416.165699,
+    "title": "Ten traps"
+  },
+  {
+    "start": 461.605699,
+    "title": "9 \u2014 Your own catalog"
+  },
+  {
+    "start": 465.15513200000004,
+    "title": "Catalog agnostic"
+  },
+  {
+    "start": 501.88529100000005,
+    "title": "Where to go next"
+  }
+]

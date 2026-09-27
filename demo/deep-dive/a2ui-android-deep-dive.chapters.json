@@ -1,0 +1,118 @@
+[
+  {
+    "start": 0.0,
+    "title": "A2UI on Android: Deep Dive"
+  },
+  {
+    "start": 4.0,
+    "title": "What this is"
+  },
+  {
+    "start": 32.399637,
+    "title": "Where the types live"
+  },
+  {
+    "start": 71.479637,
+    "title": "The map"
+  },
+  {
+    "start": 100.239637,
+    "title": "2 \u2014 The processor"
+  },
+  {
+    "start": 102.836871,
+    "title": "Four entry points"
+  },
+  {
+    "start": 159.63687099999999,
+    "title": "3 \u2014 The protocol"
+  },
+  {
+    "start": 163.62571499999999,
+    "title": "Eighteen protocol types"
+  },
+  {
+    "start": 220.50571499999998,
+    "title": "The wire, for real"
+  },
+  {
+    "start": 257.265715,
+    "title": "4 \u2014 Properties"
+  },
+  {
+    "start": 260.26957,
+    "title": "The property type system"
+  },
+  {
+    "start": 317.10956999999996,
+    "title": "5 \u2014 Functions"
+  },
+  {
+    "start": 319.69528399999996,
+    "title": "The function library"
+  },
+  {
+    "start": 389.44802799999997,
+    "title": "6 \u2014 The catalog contract"
+  },
+  {
+    "start": 391.661951,
+    "title": "Two interfaces"
+  },
+  {
+    "start": 455.861951,
+    "title": "7 \u2014 Binding"
+  },
+  {
+    "start": 458.53923,
+    "title": "The binding layer"
+  },
+  {
+    "start": 511.49922999999995,
+    "title": "A component in the flesh"
+  },
+  {
+    "start": 569.77923,
+    "title": "8 \u2014 The Material catalog"
+  },
+  {
+    "start": 571.706577,
+    "title": "What Material gives you"
+  },
+  {
+    "start": 630.3065770000001,
+    "title": "Streaming, again"
+  },
+  {
+    "start": 652.6823770000001,
+    "title": "The round trip, named"
+  },
+  {
+    "start": 675.6504040000001,
+    "title": "9 \u2014 The engine layer"
+  },
+  {
+    "start": 679.6991110000001,
+    "title": "Interceptors and errors"
+  },
+  {
+    "start": 738.2991110000002,
+    "title": "10 \u2014 In Android Studio"
+  },
+  {
+    "start": 743.6016960000002,
+    "title": "You need a current Studio"
+  },
+  {
+    "start": 781.3014240000002,
+    "title": "The code, resolved"
+  },
+  {
+    "start": 802.0104040000002,
+    "title": "The processor, by completion"
+  },
+  {
+    "start": 832.9475020000002,
+    "title": "What is missing"
+  }
+]

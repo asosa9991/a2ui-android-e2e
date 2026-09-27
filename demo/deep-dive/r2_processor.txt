@@ -1,0 +1,24 @@
+  THE PROCESSOR        androidx.a2ui.model.processor
+
+  interface A2uiMessageProcessor {
+      val activeSurfaces: StateFlow<List<A2uiSurfaceModel>>
+      val outboundEvents: Flow<A2uiClientToServerMessage>     // user actions
+      fun processMessage(msg: A2uiServerToClientMessage)
+      fun processError(err: A2uiClientErrorMessage)
+      suspend fun collectMessages()                           // drains the queue
+  }
+
+  interface A2uiSurfaceModel { val id: String }
+
+  interface A2uiActionInterceptor {
+      suspend fun onInterceptAction(action: A2uiUserAction): A2uiUserAction
+  }
+
+  // the Compose factory -- second parameter is the interceptor chain
+  fun A2uiMessageProcessor(
+      catalogs: List<A2uiCatalog>,
+      interceptors: List<A2uiActionInterceptor> = emptyList()
+  ): A2uiMessageProcessor
+
+  Four entry points, and you will use three of them.
+  collectMessages() must stay running or nothing renders.

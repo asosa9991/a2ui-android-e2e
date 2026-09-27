@@ -1,0 +1,29 @@
+  THE ENGINE LAYER        androidx.a2ui.engine.processor
+
+  class A2uiActionHandler(
+      interceptors: List<A2uiActionInterceptor>,
+      dataModel:    () -> A2uiClientDataModel,
+      send:         (A2uiClientToServerMessage) -> Unit,
+  ) {
+      suspend fun handleAction(action: A2uiUserAction, ctx: A2uiCoreExecutionContext)
+  }
+
+  interface A2uiActionInterceptor {
+      suspend fun onInterceptAction(action: A2uiUserAction): A2uiUserAction
+  }
+
+  A2uiCoreMessageProcessor      the state machine itself
+  A2uiCoreSurfaceActor          one actor per surface
+  A2uiEngineMessage             internal envelope
+    A2uiEngineActionMessage       a user action in flight
+    A2uiEngineErrorMessage        a failure in flight
+    A2uiEngineExternalMessage     a message from outside
+
+  ERRORS
+  A2uiException                 thrown by the runtime, reportable
+  A2uiClientErrorMessage        what processError() sends back
+
+  The interceptor chain is the extension point that matters in a
+  regulated codebase: every user action passes through it before it
+  leaves the device, and an interceptor can rewrite it, redact it,
+  or hold it for approval.

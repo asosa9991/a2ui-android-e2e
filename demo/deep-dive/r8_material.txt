@@ -1,0 +1,22 @@
+  THE MATERIAL CATALOG        androidx.compose.material3.a2ui
+
+  @Composable fun A2uiSurface(surface: A2uiSurfaceModel, modifier: Modifier)
+  object A2uiSurfaceDefaults
+  object MaterialA2uiDefaults
+
+  androidx.compose.material3.a2ui.catalog
+      fun materialA2uiBasicCatalogV1(
+          image:            A2uiBasicCatalogV1.Image,
+          video:            A2uiBasicCatalogV1.Video,
+          audioPlayer:      A2uiBasicCatalogV1.AudioPlayer,
+          urlOpener:        A2uiUrlOpener,
+          messageFormatter: A2uiMessageFormatter,
+          localeProvider:   A2uiLocaleProvider,
+      ): A2uiCatalog
+
+  androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
+      nested interfaces for the three media components you must supply,
+      plus AccessibilityAttributes shared by all of them
+
+  100 types in this artifact: 18 components, their property objects,
+  the icon set, and the theming defaults.

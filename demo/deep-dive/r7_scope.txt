@@ -1,0 +1,22 @@
+  THE BINDING LAYER        androidx.a2ui.compose.runtime
+
+  interface A2uiComponentScope {
+      @Composable fun <T> bind(props, property: DynamicA2uiProperty<T>): T
+      @Composable fun <T> bindUpdater(props, property): (T) -> Unit
+      @Composable fun bindChildReferences(props, property): List<A2uiComponentReference>
+      @Composable fun observeA2uiComponentState(surfaceId, componentId): A2uiComponentState
+      fun dispatchAction(action: Map<String, Any?>)
+      fun reportError(e: A2uiException)
+  }
+
+  class A2uiComponentProperties {
+      operator fun <T> get(property: StaticA2uiProperty<T>): T
+      fun contains(property: A2uiProperty<*>): Boolean
+  }
+
+  bind()        read a dynamic property, recomposing when the data model moves
+  bindUpdater() get a setter -- THIS is two-way binding
+  dispatchAction() fire a user action into outboundEvents
+
+  Six functions. Writing a custom component is mostly these three:
+  bind, bindUpdater, dispatchAction.

@@ -1,0 +1,773 @@
+WEBVTT
+
+1
+00:00:04.000 --> 00:00:07.185
+This is the deep dive. The previous guide got you rendering.
+
+2
+00:00:07.185 --> 00:00:13.820
+This one walks the actual API surface of the alpha libraries, package by package, so you know what exists before you need it.
+
+3
+00:00:13.820 --> 00:00:17.802
+There are two hundred and seventy three public types across twenty packages
+
+4
+00:00:17.802 --> 00:00:19.766
+and the useful thing is not the count
+
+5
+00:00:19.766 --> 00:00:23.163
+it is that maybe fifteen of them matter to a normal integration.
+
+6
+00:00:23.163 --> 00:00:26.030
+We will name which fifteen, and what the rest are for.
+
+7
+00:00:26.030 --> 00:00:32.400
+Everything here was read out of the published artifacts, because there is no API reference site for these libraries yet.
+
+8
+00:00:32.400 --> 00:00:34.205
+Here is how the surface splits.
+
+9
+00:00:34.205 --> 00:00:40.555
+The model artifact is the vocabulary: the protocol types, the processor interfaces, and the function library.
+
+10
+00:00:40.555 --> 00:00:43.409
+The engine is the state machine that drives them.
+
+11
+00:00:43.409 --> 00:00:51.390
+Compose runtime is the binding layer, and it carries roughly half its types purely as a property type system, which we will come back to.
+
+12
+00:00:51.390 --> 00:00:56.690
+Compose UI is small on purpose: twelve types, and it is the contract a renderer implements.
+
+13
+00:00:56.690 --> 00:01:00.826
+And material 3 dash a 2 u i is the largest of the five, a hundred types
+
+14
+00:01:00.826 --> 00:01:04.554
+because it is a full catalog implementation: eighteen components
+
+15
+00:01:04.554 --> 00:01:08.224
+their property declarations, the icon set and theming defaults.
+
+16
+00:01:11.480 --> 00:01:13.424
+Read this as a map of where to look.
+
+17
+00:01:13.424 --> 00:01:17.473
+If you are debugging what arrived on the wire, you want model dot protocol.
+
+18
+00:01:17.473 --> 00:01:20.713
+If the screen is not updating, you want model dot processor.
+
+19
+00:01:20.713 --> 00:01:24.007
+If a bound value is not refreshing, you want compose runtime.
+
+20
+00:01:24.007 --> 00:01:27.463
+If a component draws wrong, you want the catalog implementation.
+
+21
+00:01:27.463 --> 00:01:31.728
+Most alpha debugging is figuring out which of those four layers is lying to you
+
+22
+00:01:31.728 --> 00:01:35.184
+and knowing the split turns a vague problem into a specific one.
+
+23
+00:01:40.240 --> 00:01:42.837
+Start with the object you will hold a reference to.
+
+24
+00:01:42.837 --> 00:01:47.347
+The processor interface is four members and that is the entire runtime contract.
+
+25
+00:01:47.347 --> 00:01:52.364
+Active surfaces is a state flow of surface models, and it is what you collect in Compose.
+
+26
+00:01:52.364 --> 00:01:58.113
+Outbound events is a flow of client to server messages, which is every user action leaving the client.
+
+27
+00:01:58.113 --> 00:02:00.819
+Process message takes one parsed server message.
+
+28
+00:02:00.819 --> 00:02:03.581
+Process error reports a client-side failure back.
+
+29
+00:02:03.581 --> 00:02:07.866
+And collect messages is a suspending function that drains the inbound queue.
+
+30
+00:02:07.866 --> 00:02:12.319
+That last one catches people: it is not optional and it is not fire and forget.
+
+31
+00:02:12.319 --> 00:02:19.929
+If you do not keep it running inside a launched effect for the lifetime of the screen, messages queue up and the surface never changes.
+
+32
+00:02:19.929 --> 00:02:23.368
+A blank screen with no error in logcat is almost always this.
+
+33
+00:02:23.368 --> 00:02:27.878
+Note also the factory takes a list of catalogs and a list of action interceptors
+
+34
+00:02:27.878 --> 00:02:32.162
+and an interceptor gets to rewrite or swallow a user action before it leaves
+
+35
+00:02:32.162 --> 00:02:35.995
+which is where you would put logging, redaction or an approval step.
+
+36
+00:02:39.637 --> 00:02:43.626
+Next, the types that define what can travel between an agent and a client.
+
+37
+00:02:43.626 --> 00:02:45.959
+Eighteen types, and they divide cleanly.
+
+38
+00:02:45.959 --> 00:02:52.492
+Server to client is four messages: create a surface, update components, update the data model, delete a surface.
+
+39
+00:02:52.492 --> 00:02:55.291
+Client to server is two: an event, and an error.
+
+40
+00:02:55.291 --> 00:03:00.249
+That asymmetry is the shape of the protocol. The agent describes, the client reports.
+
+41
+00:03:00.249 --> 00:03:05.382
+Then the action types. A user action carries the surface, the component and a timestamp.
+
+42
+00:03:05.382 --> 00:03:08.532
+An event action is the one that travels to your agent.
+
+43
+00:03:08.532 --> 00:03:13.490
+A function call action does not travel at all, it invokes a catalog function locally.
+
+44
+00:03:13.490 --> 00:03:18.273
+Underneath sit the supporting types: the client data model with its to payload map
+
+45
+00:03:18.273 --> 00:03:21.656
+which is how you serialise state to send back; a data path
+
+46
+00:03:21.656 --> 00:03:25.272
+which is a JSON pointer into the data model; an inline catalog
+
+47
+00:03:25.272 --> 00:03:30.988
+for sending a catalog definition with the surface instead of by reference; and client capabilities
+
+48
+00:03:30.988 --> 00:03:34.021
+which is how a client advertises what it can handle.
+
+49
+00:03:40.506 --> 00:03:44.630
+And here are three of those message types as an agent actually emits them.
+
+50
+00:03:44.630 --> 00:03:47.362
+Create surface names the surface and the catalog.
+
+51
+00:03:47.362 --> 00:03:49.758
+Update components carries an adjacency list
+
+52
+00:03:49.758 --> 00:03:53.716
+where each entry has an identifier and names its children by identifier
+
+53
+00:03:53.716 --> 00:03:55.555
+with the entry point called root.
+
+54
+00:03:55.555 --> 00:03:57.617
+Update data model carries the values.
+
+55
+00:03:57.617 --> 00:04:02.188
+Notice this agent sends the components in several update messages rather than one.
+
+56
+00:04:02.188 --> 00:04:03.358
+Nothing requires that
+
+57
+00:04:03.358 --> 00:04:07.316
+but because components refer to children by name rather than by nesting
+
+58
+00:04:07.316 --> 00:04:11.106
+a partial tree is perfectly legal, and the client draws what it has.
+
+59
+00:04:17.266 --> 00:04:20.270
+Now the part of the API that is largest and least discussed.
+
+60
+00:04:20.270 --> 00:04:27.789
+Roughly twenty eight of the compose runtime types are property declarations, and they are how a component describes its own schema.
+
+61
+00:04:27.789 --> 00:04:33.758
+Every one extends A2UI property, which carries a key, a JSON schema fragment and whether it is required.
+
+62
+00:04:33.758 --> 00:04:36.513
+The split that matters is static versus dynamic.
+
+63
+00:04:36.513 --> 00:04:42.081
+A static property is fixed when the component is sent: a string, a number, an enum, a child list.
+
+64
+00:04:42.081 --> 00:04:46.328
+A dynamic property may instead carry a path, binding it to the data model.
+
+65
+00:04:46.328 --> 00:04:51.207
+Only dynamic properties can be bound, and only bound properties take part in updates.
+
+66
+00:04:51.207 --> 00:04:53.331
+So when you design a custom component
+
+67
+00:04:53.331 --> 00:04:56.488
+the question for each property is not what type is this
+
+68
+00:04:56.488 --> 00:04:59.817
+it is can an agent bind this to data, or is it structural.
+
+69
+00:04:59.817 --> 00:05:03.433
+Get that wrong and the component renders once and never reacts.
+
+70
+00:05:03.433 --> 00:05:05.212
+Notice also the enum properties
+
+71
+00:05:05.212 --> 00:05:11.641
+string enum and number enum: declaring a property that way is what produces the strict validation we hit earlier
+
+72
+00:05:11.641 --> 00:05:15.716
+where an unexpected variant renders an error chip rather than throwing.
+
+73
+00:05:17.110 --> 00:05:19.695
+Which brings us to the piece you probably came here for.
+
+74
+00:05:19.695 --> 00:05:21.860
+Thirteen functions ship in the alpha
+
+75
+00:05:21.860 --> 00:05:26.370
+and they all implement one interface: a definition describing the signature
+
+76
+00:05:26.370 --> 00:05:30.399
+and an execute that takes an argument map and an execution context.
+
+77
+00:05:30.399 --> 00:05:35.390
+They group into four kinds. Validation: required, email, numeric, regex and length.
+
+78
+00:05:35.390 --> 00:05:40.381
+Logic: and, or and not, which let an agent compose conditions without sending code.
+
+79
+00:05:40.381 --> 00:05:45.492
+Formatting: format string, format number, format currency, format date and pluralize.
+
+80
+00:05:45.492 --> 00:05:49.220
+And one side effect: open URL. Two details matter in practice.
+
+81
+00:05:49.220 --> 00:05:56.917
+First, the stateless ones are Kotlin objects, so you reference required function dot instance rather than constructing anything.
+
+82
+00:05:56.917 --> 00:06:02.329
+The ones that need locale or a message formatter take that dependency in their constructor
+
+83
+00:06:02.329 --> 00:06:07.139
+and that is precisely why the Material catalog factory demands a locale provider
+
+84
+00:06:07.139 --> 00:06:09.905
+a message formatter and a URL opener from you.
+
+85
+00:06:09.905 --> 00:06:12.731
+It is constructing this library on your behalf.
+
+86
+00:06:12.731 --> 00:06:16.760
+Second, and this is the important one: these execute on the client.
+
+87
+00:06:16.760 --> 00:06:22.232
+When an agent marks a field required, or asks for a currency format, no round trip happens.
+
+88
+00:06:22.232 --> 00:06:24.397
+Validation is immediate and offline.
+
+89
+00:06:24.397 --> 00:06:29.448
+You can look any of them up by name from a catalog's function collection at runtime.
+
+90
+00:06:29.448 --> 00:06:31.662
+So how does a component get registered at all.
+
+91
+00:06:31.662 --> 00:06:35.383
+This is the whole renderer contract, and it is two interfaces.
+
+92
+00:06:35.383 --> 00:06:36.703
+A component has a name
+
+93
+00:06:36.703 --> 00:06:42.285
+which is the string an agent puts in the component field; a description; a list of properties
+
+94
+00:06:42.285 --> 00:06:45.646
+which is the schema we just walked; an optional is ready
+
+95
+00:06:45.646 --> 00:06:49.547
+which lets a component decline to draw until its data has arrived
+
+96
+00:06:49.547 --> 00:06:54.108
+and that is how streaming avoids flicker; and a composable content function.
+
+97
+00:06:54.108 --> 00:06:58.429
+A catalog has an identifier, which is the catalog identifier on the wire
+
+98
+00:06:58.429 --> 00:07:02.870
+a collection of components, a collection of functions, and a theme schema.
+
+99
+00:07:02.870 --> 00:07:06.411
+Both collections are lists with lookup by name. That is it.
+
+100
+00:07:06.411 --> 00:07:11.453
+Nothing in either interface mentions Material, Compose theming or any design system.
+
+101
+00:07:11.453 --> 00:07:15.114
+Material 3 dash a 2 u i is one implementation of A2UI catalog
+
+102
+00:07:15.114 --> 00:07:20.395
+and because the processor takes a list, yours can sit next to it rather than replace it.
+
+103
+00:07:35.862 --> 00:07:38.539
+Inside a component, six functions do the work.
+
+104
+00:07:38.539 --> 00:07:43.208
+The component scope is what your content function receives, and it is six members.
+
+105
+00:07:43.208 --> 00:07:47.534
+Bind reads a dynamic property and recomposes when the underlying data moves.
+
+106
+00:07:47.534 --> 00:07:49.299
+Bind updater hands you a setter
+
+107
+00:07:49.299 --> 00:07:56.644
+and that is two-way binding: a text field calls it on every keystroke and the client data model updates with no network involved.
+
+108
+00:07:56.644 --> 00:08:00.913
+Bind child references resolves a child list into references you can render.
+
+109
+00:08:00.913 --> 00:08:05.468
+Observe component state gives you a component's state by surface and identifier.
+
+110
+00:08:05.468 --> 00:08:11.275
+Dispatch action fires a user action, which is what surfaces on outbound events and reaches your agent.
+
+111
+00:08:11.275 --> 00:08:13.552
+Report error pushes a client error back.
+
+112
+00:08:13.552 --> 00:08:19.929
+Alongside it, component properties gives typed access to static values, with a contains check for optional ones.
+
+113
+00:08:19.929 --> 00:08:27.501
+In practice a custom component is mostly three of these: bind for reading, bind updater for writing, dispatch action for interaction.
+
+114
+00:08:31.499 --> 00:08:34.159
+Here is the shape a component implementation takes.
+
+115
+00:08:34.159 --> 00:08:40.730
+These are the media stubs the Material catalog requires, so they are deliberately empty, but the structure is what to look at.
+
+116
+00:08:40.730 --> 00:08:45.320
+Typed content is an extension function on the component scope rather than a plain method
+
+117
+00:08:45.320 --> 00:08:49.388
+which means the binding functions are in scope inside it without being passed.
+
+118
+00:08:49.388 --> 00:08:51.474
+The accessibility parameter is nullable.
+
+119
+00:08:51.474 --> 00:08:58.254
+And the property list is typed, so the values arriving here have already been validated against the schema the component declared.
+
+120
+00:09:29.779 --> 00:09:31.707
+And the implementation you get for free.
+
+121
+00:09:31.707 --> 00:09:36.169
+The Material artifact exposes a small public surface over a large private one.
+
+122
+00:09:36.169 --> 00:09:39.544
+A2UI surface is the composable you hand a surface model to.
+
+123
+00:09:39.544 --> 00:09:43.435
+Surface defaults and Material A2UI defaults carry the theming knobs.
+
+124
+00:09:43.435 --> 00:09:47.382
+And the catalog factory takes those six parameters we have discussed.
+
+125
+00:09:47.382 --> 00:09:54.591
+Behind that sit roughly a hundred types: eighteen components, their property declarations, an icon set and the theme plumbing.
+
+126
+00:09:54.591 --> 00:09:59.683
+Worth saying plainly: if your design system is not Material, you are not stuck with this.
+
+127
+00:09:59.683 --> 00:10:01.971
+You implement the same catalog interface
+
+128
+00:10:01.971 --> 00:10:09.294
+and the hundred types behind this one are the scale of work you are taking on if you implement all eighteen components yourself.
+
+129
+00:10:30.307 --> 00:10:34.058
+With the API named, the behaviour we saw earlier reads differently.
+
+130
+00:10:34.058 --> 00:10:40.328
+This form arriving in pieces is create surface, then several update components messages, then update data model.
+
+131
+00:10:40.328 --> 00:10:46.150
+The fields fill last because binding resolves against a data model that arrived after the structure did.
+
+132
+00:10:46.150 --> 00:10:50.853
+And is ready is what stops half-bound components from flickering while that happens.
+
+133
+00:10:52.682 --> 00:10:56.180
+And this is the same round trip with every piece identified.
+
+134
+00:10:56.180 --> 00:11:00.319
+The checkbox calls bind updater, which writes to the client data model.
+
+135
+00:11:00.319 --> 00:11:02.418
+Tapping review calls dispatch action
+
+136
+00:11:02.418 --> 00:11:05.682
+which produces a client event message on outbound events
+
+137
+00:11:05.682 --> 00:11:08.830
+carrying the context and the data model's payload map.
+
+138
+00:11:08.830 --> 00:11:13.668
+Our code posts it, the agent replies, and process message feeds the answer back in.
+
+139
+00:11:13.668 --> 00:11:15.650
+Every step is a name you now know.
+
+140
+00:11:15.650 --> 00:11:19.699
+One layer we have not opened, and for some of you it is the most important one.
+
+141
+00:11:19.699 --> 00:11:25.771
+The engine artifact is thirty types and you rarely construct any of them directly, but two are worth knowing.
+
+142
+00:11:25.771 --> 00:11:30.840
+The action handler is what the processor builds internally: it holds your interceptor chain
+
+143
+00:11:30.840 --> 00:11:35.464
+a way to read the current data model, and a way to send a client to server message.
+
+144
+00:11:35.464 --> 00:11:37.358
+Every user action goes through it.
+
+145
+00:11:37.358 --> 00:11:43.040
+And an action interceptor is a single suspending function that receives a user action and returns one.
+
+146
+00:11:43.040 --> 00:11:45.658
+It can pass it through, rewrite it, or hold it.
+
+147
+00:11:45.658 --> 00:11:50.671
+If you work somewhere that has to prove what left the device, this is your seam: redaction
+
+148
+00:11:50.671 --> 00:11:54.403
+audit logging, or a human approval step all live here, in one place
+
+149
+00:11:54.403 --> 00:11:56.632
+rather than scattered across components.
+
+150
+00:11:56.632 --> 00:11:58.470
+The error path is the other half.
+
+151
+00:11:58.470 --> 00:12:02.871
+The runtime throws A2UI exception, a component can report one through its scope
+
+152
+00:12:02.871 --> 00:12:10.224
+and process error sends a client error message back so the agent learns that its payload failed rather than watching a blank screen.
+
+153
+00:12:18.299 --> 00:12:20.656
+Everything so far came out of the artifacts.
+
+154
+00:12:20.656 --> 00:12:23.602
+Here is the same API the way you will actually meet it.
+
+155
+00:12:23.602 --> 00:12:27.377
+First, a practical warning that will cost you an afternoon otherwise.
+
+156
+00:12:27.377 --> 00:12:30.441
+This project needs Android Gradle Plugin nine point four
+
+157
+00:12:30.441 --> 00:12:34.326
+and the Gradle command line will happily build it on any Studio version
+
+158
+00:12:34.326 --> 00:12:37.007
+because Gradle does not care what I D E you have.
+
+159
+00:12:37.007 --> 00:12:38.375
+Android Studio does care.
+
+160
+00:12:38.375 --> 00:12:43.190
+On a twenty twenty five release the sync fails outright with an incompatible A G P error
+
+161
+00:12:43.190 --> 00:12:46.200
+so you get no indexing, no completion and no navigation
+
+162
+00:12:46.200 --> 00:12:49.920
+while the command line keeps working and tells you nothing is wrong.
+
+163
+00:12:49.920 --> 00:12:51.945
+You want a twenty twenty six release.
+
+164
+00:12:51.945 --> 00:12:55.283
+And add a Gradle wrapper pinned to the version you build with
+
+165
+00:12:55.283 --> 00:13:01.301
+because without one Studio picks its own and fails with a class not found error that tells you nothing useful.
+
+166
+00:13:01.301 --> 00:13:03.300
+Once it syncs, this is what you get.
+
+167
+00:13:03.300 --> 00:13:09.574
+Every A2UI symbol resolves, parameter name hints show you what each argument is, and the inlay hints mark usages.
+
+168
+00:13:09.574 --> 00:13:16.680
+The two launched effects are the whole client: one streams a surface in, the other collects outbound events and posts them back.
+
+169
+00:13:16.680 --> 00:13:22.010
+Being able to see the types inline is most of why getting the sync working is worth the trouble.
+
+170
+00:13:22.010 --> 00:13:26.439
+And here is the fastest way to learn this API. Type processor, then a dot.
+
+171
+00:13:26.439 --> 00:13:31.286
+The completion list is the entire processor interface with its types spelled out.
+
+172
+00:13:31.286 --> 00:13:34.158
+Active surfaces, a state flow of surface models.
+
+173
+00:13:34.158 --> 00:13:37.329
+Outbound events, a flow of client to server messages.
+
+174
+00:13:37.329 --> 00:13:42.356
+Process message, taking a server to client message. Collect messages. Process error.
+
+175
+00:13:42.356 --> 00:13:45.886
+Five members, and the signatures tell you how they connect.
+
+176
+00:13:45.886 --> 00:13:52.948
+With no reference documentation published, completion in a synced project is the most reliable API reference you have.
+
+177
+00:13:52.948 --> 00:13:54.447
+Two honest gaps to close on.
+
+178
+00:13:54.447 --> 00:13:57.393
+There is no published API reference for these libraries
+
+179
+00:13:57.393 --> 00:14:02.159
+which is why this video exists: everything here was read out of the artifacts themselves.
+
+180
+00:14:02.159 --> 00:14:08.050
+And the alpha has no compatibility promise, so pin all five to the same version and expect signatures to move.
+
+181
+00:14:08.050 --> 00:14:14.906
+The pieces most likely to shift are the ones with the least documentation, which is the property system and the component scope.
+
+182
+00:14:14.906 --> 00:14:16.566
+If you are building on this now
+
+183
+00:14:16.566 --> 00:14:23.046
+wrap your own thin layer over the processor and the scope rather than sprinkling library calls through your feature code.
+
+184
+00:14:23.046 --> 00:14:25.403
+Then when alpha two lands, you fix one file.
+
+185
+00:14:25.403 --> 00:14:28.616
+If you are starting on Monday, here is the order that works.
+
+186
+00:14:28.616 --> 00:14:33.222
+Get a project syncing in a twenty twenty six Studio with a pinned Gradle wrapper first
+
+187
+00:14:33.222 --> 00:14:36.489
+because without indexing you are guessing at every signature.
+
+188
+00:14:36.489 --> 00:14:41.738
+Render a static payload from assets next, so you learn the message types with nothing else moving.
+
+189
+00:14:41.738 --> 00:14:44.844
+Only then point it at a real agent and add outbound events
+
+190
+00:14:44.844 --> 00:14:49.450
+because debugging streaming and the round trip at the same time is how you lose a day.
+
+191
+00:14:49.450 --> 00:14:53.252
+Keep your own surfaces pre-authored on the server rather than generated
+
+192
+00:14:53.252 --> 00:14:59.036
+which costs you nothing and means you can show someone exactly what a screen will look like before it ships.
+
+193
+00:14:59.036 --> 00:15:04.285
+And when a component renders as a red error chip, check the enum value before you check your code.
