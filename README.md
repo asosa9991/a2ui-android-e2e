@@ -76,6 +76,17 @@ Build traps: AGP 9 rejects `org.jetbrains.kotlin.android`; `compileSdk` 37.1 is
 `compileSdk = 37` plus `compileSdkMinor = 1`; and Android Studio must be a 2026
 release or Gradle sync refuses AGP 9.4.1 while the command line builds fine.
 
+## Adding A2UI to another app
+
+`docs/A2UI-ANDROID.md` is a task-oriented onboarding guide for the alpha
+libraries: dependencies, the build traps, the render path, writing a custom
+component, the wire format, and a symptom-to-cause table for the failures that
+render a wrong screen instead of throwing. `docs/reference/` carries the API
+surface, the wire format and copy-paste recipes.
+
+It is also installed as an agent skill at `~/.claude/skills/a2ui-android/`, so an
+agent can load it by name when asked to add or extend A2UI in any project.
+
 ## demo/
 
 Narrated videos built from this project with the
