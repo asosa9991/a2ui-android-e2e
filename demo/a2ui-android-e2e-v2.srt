@@ -1,0 +1,135 @@
+1
+00:00:04,000 --> 00:00:08,720
+The first Android walkthrough rendered a payload from a file. Nothing talked back.
+
+2
+00:00:08,720 --> 00:00:10,159
+This one closes the loop.
+
+3
+00:00:10,159 --> 00:00:13,957
+An agent streams a surface over the network, the renderer draws it
+
+4
+00:00:13,957 --> 00:00:17,756
+the user edits and taps, and that action travels back to the agent
+
+5
+00:00:17,756 --> 00:00:19,828
+which answers with the next surface.
+
+6
+00:00:19,828 --> 00:00:23,397
+Three surfaces, two round trips, no layout code on the client.
+
+7
+00:00:23,397 --> 00:00:24,355
+Here is the agent.
+
+8
+00:00:24,355 --> 00:00:28,510
+Every surface it can send is written out in advance, right here in the source.
+
+9
+00:00:28,510 --> 00:00:30,959
+Nothing is generated when the request arrives.
+
+10
+00:00:30,959 --> 00:00:37,670
+That matters if you work somewhere that has to review and sign off on what the user sees: the structure is fixed and auditable
+
+11
+00:00:37,670 --> 00:00:39,002
+and only the values move.
+
+12
+00:00:39,002 --> 00:00:45,020
+Notice the form is sent as four separate messages rather than one, so the client can draw each piece as it lands.
+
+13
+00:00:46,117 --> 00:00:47,705
+The client side is two loops.
+
+14
+00:00:47,705 --> 00:00:53,183
+The first asks the agent for a surface and feeds each line into the processor the moment it arrives.
+
+15
+00:00:53,183 --> 00:00:55,155
+The second collects outbound events.
+
+16
+00:00:55,155 --> 00:01:02,221
+Every time the user triggers an action the renderer emits one, and we post it straight back to the agent and stream the reply in.
+
+17
+00:01:02,221 --> 00:01:06,166
+That is the entire integration. Everything else is the library's job.
+
+18
+00:01:06,166 --> 00:01:11,655
+The hook worth knowing is outbound events, a flow of client to server messages on the processor.
+
+19
+00:01:11,655 --> 00:01:15,371
+It carries every user action, and it appears in no documentation.
+
+20
+00:01:17,221 --> 00:01:18,922
+Watch the first surface arrive.
+
+21
+00:01:18,922 --> 00:01:23,806
+The app starts with nothing, asks the agent, and the form assembles as the messages land.
+
+22
+00:01:23,806 --> 00:01:30,610
+Title and description first, then the card of fields, then the button, and finally the data model that fills every field in.
+
+23
+00:01:30,610 --> 00:01:36,537
+This is progressive rendering: the user sees structure immediately instead of waiting for the whole payload.
+
+24
+00:01:36,537 --> 00:01:37,498
+Now the user acts.
+
+25
+00:01:37,498 --> 00:01:41,341
+Ticking the box writes to the client data model through two-way binding.
+
+26
+00:01:41,341 --> 00:01:45,399
+Tapping review sends an event to the agent carrying that data model with it.
+
+27
+00:01:45,399 --> 00:01:50,951
+The agent picks its review template, fills it with the values the client just sent, and streams it back.
+
+28
+00:01:50,951 --> 00:01:56,770
+Look at the frequency row: it says Monthly, because the checkbox we ticked made the trip and came home again.
+
+29
+00:01:56,770 --> 00:02:02,834
+Confirm sends the second event and the agent replies with a receipt it built at that moment, with a fresh reference number.
+
+30
+00:02:02,834 --> 00:02:08,110
+Three surfaces have now been rendered natively, and the client never knew what any of them would look like.
+
+31
+00:02:08,110 --> 00:02:10,625
+It only knew how to render whatever the agent sent.
+
+32
+00:02:10,770 --> 00:02:13,686
+And this is the same conversation from the agent's side.
+
+33
+00:02:13,686 --> 00:02:20,196
+One request for the opening surface, then events arriving with the user's data attached, each answered with the next surface.
+
+34
+00:02:20,196 --> 00:02:24,101
+Swap this agent for your own service and the client does not change at all.

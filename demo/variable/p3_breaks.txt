@@ -1,0 +1,24 @@
+  WHERE THIS GENUINELY STOPS WORKING
+
+  1  NO CONDITIONAL RENDERING in v0.9.
+     You cannot say "render this card only if the list is empty".
+     Workarounds: bind the TEXT to an empty string so it takes no space,
+     or bind a list to [] so the template produces nothing.
+     A container bound to nothing still draws its own box -- that is why
+     the empty state here is a bare Text, not a Card.
+
+  2  STRUCTURAL variety still needs a template.
+     Different DEPTH or different COMPONENT TYPES is structure, not data.
+     A payment that needs a date picker and one that needs a dropdown are
+     two templates, not one template with data.
+
+  3  UNBOUNDED variety is not a data problem.
+     If the set of possible screens is genuinely open-ended, no fixed
+     template set covers it. That is the case where the constraint is
+     doing its job and telling you the requirement is wrong.
+
+  THE TEST
+     Ask: does this vary in HOW MANY, or in WHAT KIND?
+     How many  -> data. One template covers it.
+     What kind -> structure. Add a reviewed template, or push the
+                  variation into a bound property such as a variant.

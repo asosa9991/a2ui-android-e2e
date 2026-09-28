@@ -1,0 +1,25 @@
+  PATTERN: PUSH "WHAT KIND" INTO A BOUND PROPERTY
+
+  Instead of two templates that differ only by emphasis:
+
+      { "id": "amount", "component": "Text",
+        "text":    { "path": "value" },
+        "variant": { "path": "emphasis" } }      <- bound, not fixed
+
+  The agent sends  emphasis: "h2"  or  "body"  in the data model.
+  Structure identical; presentation varies.
+
+  This works for anything the catalog models as an enumerated property:
+     Text.variant       h1 h2 h3 h4 h5 caption body
+     Button.variant     default primary borderless
+     Column/Row         justify, align
+     List               direction
+
+  LIMIT: the value must be one the catalog already allows. An unknown
+  enum value renders an error chip rather than throwing -- so validate
+  against the catalog schema before you send, not after.
+
+  THE TEST, RESTATED
+     varies in HOW MANY  -> a template with a bound list
+     varies in DEGREE    -> a bound enum property
+     varies in KIND      -> a second reviewed template

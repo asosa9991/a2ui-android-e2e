@@ -1,0 +1,26 @@
+  APPLYING THE TEST IN A DESIGN REVIEW
+
+  "Positions list, 0 to 400 rows"
+      varies in HOW MANY          -> one template, bound list.          1 template
+
+  "Show unrealised P/L in red when negative, plain when positive"
+      varies in DEGREE            -> bind a colour/variant property.    0 new
+
+  "Retail customers see 4 summary rows, advisors see 9"
+      varies in HOW MANY          -> same template, longer list.        0 new
+
+  "Options positions need strike, expiry, delta; equities do not"
+      varies in HOW MANY (detail rows, already a template)              0 new
+      ...unless options need a DIFFERENT COMPONENT, then it is KIND
+
+  "Wire transfer needs a date picker; internal transfer does not"
+      varies in KIND              -> second reviewed template.          1 new
+
+  "Show whichever of 40 disclosure blocks apply to this product"
+      varies in HOW MANY          -> one disclosure template, bound
+                                     list of disclosure text.           1 template
+
+  "The screen should adapt to whatever the customer asks for"
+      UNBOUNDED                   -> not a data problem. Push back.
+
+  Seven requirements. Two templates.

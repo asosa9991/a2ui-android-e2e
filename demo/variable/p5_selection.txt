@@ -1,0 +1,23 @@
+  PATTERN: A REVIEWED SET, AND THE DATA PICKS ONE
+
+  TEMPLATES = {                      # every one written and reviewed
+      "holdings.flat":    flat_components,
+      "holdings.grouped": grouped_components,
+      "holdings.empty":   empty_components,
+  }
+
+  def choose(data):                  # a pure function of the data shape
+      if not data["holdings"] and not data["groups"]:
+          return "holdings.empty"
+      if data["groups"]:
+          return "holdings.grouped"
+      return "holdings.flat"
+
+  tid = choose(data)                 # deterministic
+  assert tid in TEMPLATES            # never falls back to generation
+  send(TEMPLATES[tid], data)
+  log(surface_id, tid, commit_sha)   # what the customer saw
+
+  The agent chooses BETWEEN reviewed options. It never composes one.
+  Same inputs, same template, every time -- so it is testable, and a
+  reviewer can enumerate what a customer can possibly be shown.

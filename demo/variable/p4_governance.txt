@@ -1,0 +1,23 @@
+  KEEPING A TEMPLATE CATALOG REVIEWABLE
+
+  1  Templates live in version control, not in a database and not in a
+     prompt. A screen change is a pull request.
+
+  2  One identifier per template, and the agent may only name one that
+     exists. Reject unknown identifiers at the edge rather than falling
+     back to something generated.
+
+  3  Validate the data model against a schema before sending it. A
+     template plus bad data renders a wrong screen, not an error.
+
+  4  Snapshot-test each template against a fixed dataset. The conformance
+     suites in the a2ui repo show the shape: input payload, expected
+     result, run in CI.
+
+  5  Log the template id with every surface you send. When someone asks
+     "what did the customer actually see", the answer is a commit hash
+     plus a data model, and you can replay it exactly.
+
+  6  Review the SET, not each screen. Once a template is approved, every
+     dataset it can render is approved with it -- which is the whole
+     reason this approach satisfies the constraint.

@@ -1,0 +1,132 @@
+{
+  "title": "Building a Custom A2UI Component",
+  "output": "a2ui-custom-component.mp4",
+  "voice": "Zoe (Premium)",
+  "rate": 178,
+  "resolution": "1920x1080",
+  "fps": 30,
+  "captions": "soft",
+  "loudness": -16,
+  "title_card": {
+    "text": "Building a custom component",
+    "subtitle": "A2UI on Android \u2014 a working session, start to finish",
+    "duration": 4.0
+  },
+  "scenes": [
+    {
+      "chapter": "What we are building",
+      "narration": "In the last session the conclusion was that when variation is in kind rather than in amount, the answer is a custom component: branching that ships inside your binary and goes through code review, rather than structure an agent composes. This session builds one. A component called Position Row, which takes a symbol, a value, an instrument kind and a detail line, and renders an equity, an option and a bond differently. By the end it is registered, the agent is sending it, and forty of them are on screen. Everything here compiles and runs; nothing is sketched.",
+      "image": "m1.png"
+    },
+    {
+      "chapter": "The interface",
+      "narration": "Start with what the renderer asks of you. A2UI Component is four members. A name, which is the string the agent puts in the component field, so this is the contract. A description. A list of properties, which is the schema this component advertises. And a composable content function. There is also an optional is ready, which lets a component decline to draw until its data has arrived. Notice what is not here: nothing about Material, nothing about theming, no base class to extend. It is an interface, and a Kotlin object satisfies it. One more thing about name. It is the only coupling between your app and the agent, and it is a string, so treat it like a public API. Namespace it if you expect more than a handful, get it right the first time, and remember that renaming it is a breaking change for every payload already written against it.",
+      "terminal": {
+        "tape": "L1_iface.tape"
+      }
+    },
+    {
+      "chapter": "3 \u2014 Properties",
+      "narration": "The properties list is where most of the thinking goes, and it is where the first real trap lives.",
+      "image": "m3.png"
+    },
+    {
+      "chapter": "Static or dynamic",
+      "narration": "The obvious move is to construct a property class directly. That does not compile, because the concrete classes are internal. You build them through factories on A2UI Property instead, and the factory you pick is a decision, not a formality. The static ones take a value fixed when the component is sent: string, number, boolean, string enum, component id, child list, action. The dynamic ones may instead carry a path that binds into the data model: dynamic string, dynamic number, dynamic boolean and so on. Only dynamic properties can be bound, and only bound properties recompose when the data changes. Choosing static for something an agent needs to bind is the first bug you will hit, and the symptom is a component that renders once with the right value and then never updates again. For our row, all four are dynamic, because every one of them comes from the data. There is a second decision hidden in each factory call, which is the required flag. Marking a property required does not make the renderer throw when it is missing. It goes into the JSON schema this component advertises, which is what an agent reads to know how to address you. So required is a statement to whoever writes payloads, not a runtime guard, and you still need a sensible default on the read side. That is why every bind call here ends in an elvis.",
+      "terminal": {
+        "tape": "L2_props.tape"
+      }
+    },
+    {
+      "chapter": "4 \u2014 Let the compiler teach you",
+      "narration": "Now the content function, and the technique that matters more than any individual signature.",
+      "image": "m4.png"
+    },
+    {
+      "chapter": "The error is the documentation",
+      "narration": "Write the content function the way you would guess it: an override taking a scope, some properties and a modifier. Build it, and the compiler says content overrides nothing, and then it does something genuinely useful. It prints the signature it wanted. Content is an extension function on A2UI Component Scope, not a plain method. That also explains the second error, because bind was unresolved: inside an extension the scope is the receiver, so its members are already available and passing it explicitly is wrong. This is worth internalising, because there is no API reference site for these libraries. The compiler error is the documentation. Guess the shape, build it, and copy what it prints back at you. I wrote this component that way and it took three builds. It is worth saying why guessing is a reasonable strategy here rather than a sign of bad tooling. These libraries are alpha, the signatures are still moving, and any reference you found written down would be out of date before you used it. The compiler is reading the actual artifact on your disk, so it is never wrong and never stale. Build early and build often, and treat a red error as the fastest documentation lookup available.",
+      "terminal": {
+        "tape": "L3_compiler.tape"
+      }
+    },
+    {
+      "chapter": "The corrected signature",
+      "narration": "So here is the corrected version. Override fun, A2UI Component Scope dot Content, taking properties and a modifier. And then four calls to bind. Note where bind lives: it is an extension on the properties, taking the property you declared, and it returns a nullable of that type. So properties dot bind of symbol, with an elvis for the default. Each of those reads the data model and recomposes this component when that path changes. That is the entire binding layer as far as a component author is concerned. One detail in that elvis worth noticing: bind returns a nullable even for a property you marked required, because required is a schema statement rather than a guarantee. If an agent omits it you get null, and a component that crashes on a missing field is a component that takes the whole surface down. Default, do not assert.",
+      "terminal": {
+        "tape": "L4_content.tape"
+      }
+    },
+    {
+      "chapter": "5 \u2014 Rendering",
+      "narration": "And once the values are bound, the rest is not A2UI at all.",
+      "image": "m5.png"
+    },
+    {
+      "chapter": "Ordinary Compose",
+      "narration": "This is a Row, a Column, two Texts and a when expression. It is ordinary Compose, and that is the point worth dwelling on. The branching on instrument kind, options in purple, bonds in teal, equities in the default colour, is code in your repository. It compiles into the binary. It goes through your review, your tests and your release process. An agent cannot change it. What an agent can do is say render a Position Row with this data, which is the same class of statement as render a Text with this string. That is why this satisfies a no runtime generation constraint while still letting one component cover three instrument types. And because it is ordinary Compose, everything you already know still applies. You can use your own theme, your own typography, your own spacing tokens. You can call into existing composables from your design system. The modifier parameter is passed in by the renderer and you should apply it to your outermost element, because that is how the parent controls layout. Forget that and your component will ignore the width the surface tried to give it.",
+      "terminal": {
+        "tape": "L5_render.tape"
+      }
+    },
+    {
+      "chapter": "6 \u2014 Registering it",
+      "narration": "The component exists. Getting the renderer to find it is where I lost the most time, so this part is worth doing carefully.",
+      "image": "m6.png"
+    },
+    {
+      "chapter": "One catalog per surface",
+      "narration": "My first attempt was to put the component in its own catalog and hand the processor both, Material's and mine. It compiled, it ran, and the row rendered as a red error chip with nothing in logcat. The reason is in the protocol rather than the library. Create surface carries a single catalog id, one string, so a surface resolves against exactly the catalog it names and anything missing fails silently. What works is building one catalog that extends Material's: your own id, Material's components plus yours, Material's functions and theme schema. Then the agent names your id. Version one point zero adds mixable catalogs and removes this constraint, but on zero point nine this is the pattern, and the silent failure is what makes it expensive to discover. Worth dwelling on how that failure presented, because it is the expensive part. No exception. Nothing in logcat. Just a small red chip where the row should be, which is the same thing you see when an enum value is wrong. So when a component renders as an error chip, the two things to check in order are whether the catalog naming it actually contains it, and whether every enum value you sent is one the catalog allows.",
+      "terminal": {
+        "tape": "L6_catalog.tape"
+      }
+    },
+    {
+      "chapter": "The registration",
+      "narration": "In the app that is a one line change. Wrap the Material catalog in extended catalog, and hand the processor a list containing that. Everything the Material catalog could render still renders, because its components are in there. And now Position Row renders too. Note also what did not change: the Material components are still resolving through the same catalog, because we kept its component list and added to it rather than replacing it. Getting that wrong, by passing only your own components, would make every Text and Column on the surface fail the same silent way.",
+      "terminal": {
+        "tape": "L7_register.tape"
+      }
+    },
+    {
+      "chapter": "7 \u2014 The payload",
+      "narration": "Which changes what the agent sends.",
+      "image": "m7.png"
+    },
+    {
+      "chapter": "What the agent now sends",
+      "narration": "Before, a row was three basic components: a Row containing two Texts, with the layout expressed in the payload. Now it is one component, named Position Row, with four bound properties. The payload got smaller and, more importantly, it stopped describing layout. The agent no longer says put the symbol on the left and the value on the right. It says here is a position, and the client decides what a position looks like. That is a better division of responsibility, and it is also fewer things for a reviewer to check. There is a governance angle here too. A payload that names Position Row is shorter to review than one that describes a layout, and it cannot express anything the component does not already support. The schema you declared is the boundary. An agent cannot send a fifth property and have it mean something, which is exactly the property you want when someone asks what a payload could possibly do.",
+      "terminal": {
+        "tape": "L8_payload.tape"
+      }
+    },
+    {
+      "chapter": "The component in the editor",
+      "narration": "Here is the finished file in Android Studio, resolved and indexed, which is worth seeing whole. The four dynamic properties at the top, the name and description that form the wire contract, the properties list that is the schema, the content extension with its four binds, and the layout underneath. Ninety five lines including comments, and that is a complete custom component. And notice the inlay hints the IDE is showing: parameter names on every factory call, and usage counts in the gutter. None of that works without a successful Gradle sync, which is the one thing worth fixing before you start.",
+      "clip": "ide_walk_t.mp4"
+    },
+    {
+      "chapter": "8 \u2014 Running it",
+      "narration": "So let us see it.",
+      "image": "m8.png"
+    },
+    {
+      "chapter": "One position",
+      "narration": "One holding, and it is an option. The symbol on the left with the contract detail underneath, the value on the right in purple. None of that layout came from the agent. The payload said Position Row with four values, and everything you see is the composable we just wrote.",
+      "clip": "app_custom.mp4",
+      "from": 5,
+      "to": 19
+    },
+    {
+      "chapter": "Forty, three kinds",
+      "narration": "And here is forty of them, mixed. Equities plain, options purple with a contract line, bonds teal with a coupon and a maturity. One component, one wire name, one property schema, three visual treatments chosen by data. If you had done this with basic catalog components it would be three templates and a selection rule on the server. Here it is one component and a kind field, and the decision about what a bond looks like lives in the app where it can be reviewed.",
+      "clip": "app_custom.mp4",
+      "from": 20,
+      "to": 46
+    },
+    {
+      "chapter": "What it cost",
+      "narration": "To close, the honest accounting. The component is ninety five lines. Getting there took three builds, all of them fixing signatures that the compiler then told me, and one silent failure from the catalog rule that took longer than all the compile errors put together. The real cost is not this file, it is that a custom component is a renderer change on every platform you ship. One component here is one component on iOS and one on the web too, and they have to agree on the property schema or the same payload renders differently. So the rule of thumb is the one from the last session: reach for this when one component replaces several templates, and not for a one off. For a team already building its own renderers, this is not extra work. It is the thing you were going to build anyway, pointed at a problem worth solving.",
+      "image": "m1.png"
+    }
+  ]
+}

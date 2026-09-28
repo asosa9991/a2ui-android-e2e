@@ -1,0 +1,573 @@
+WEBVTT
+
+1
+00:00:04.000 --> 00:00:09.186
+In the last session the conclusion was that when variation is in kind rather than in amount
+
+2
+00:00:09.186 --> 00:00:15.000
+the answer is a custom component: branching that ships inside your binary and goes through code review
+
+3
+00:00:15.000 --> 00:00:17.279
+rather than structure an agent composes.
+
+4
+00:00:17.279 --> 00:00:18.647
+This session builds one.
+
+5
+00:00:18.647 --> 00:00:22.181
+A component called Position Row, which takes a symbol, a value
+
+6
+00:00:22.181 --> 00:00:25.543
+an instrument kind and a detail line, and renders an equity
+
+7
+00:00:25.543 --> 00:00:27.424
+an option and a bond differently.
+
+8
+00:00:27.424 --> 00:00:32.325
+By the end it is registered, the agent is sending it, and forty of them are on screen.
+
+9
+00:00:32.325 --> 00:00:35.460
+Everything here compiles and runs; nothing is sketched.
+
+10
+00:00:35.460 --> 00:00:39.768
+Start with what the renderer asks of you. A2UI Component is four members.
+
+11
+00:00:39.768 --> 00:00:45.139
+A name, which is the string the agent puts in the component field, so this is the contract.
+
+12
+00:00:45.139 --> 00:00:50.037
+A description. A list of properties, which is the schema this component advertises.
+
+13
+00:00:50.037 --> 00:00:52.044
+And a composable content function.
+
+14
+00:00:52.044 --> 00:00:58.064
+There is also an optional is ready, which lets a component decline to draw until its data has arrived.
+
+15
+00:00:58.064 --> 00:01:03.729
+Notice what is not here: nothing about Material, nothing about theming, no base class to extend.
+
+16
+00:01:03.729 --> 00:01:08.451
+It is an interface, and a Kotlin object satisfies it. One more thing about name.
+
+17
+00:01:08.451 --> 00:01:14.707
+It is the only coupling between your app and the agent, and it is a string, so treat it like a public API.
+
+18
+00:01:14.707 --> 00:01:19.133
+Namespace it if you expect more than a handful, get it right the first time
+
+19
+00:01:19.133 --> 00:01:24.799
+and remember that renaming it is a breaking change for every payload already written against it.
+
+20
+00:01:24.799 --> 00:01:29.453
+The properties list is where most of the thinking goes, and it is where the first real trap lives.
+
+21
+00:01:29.453 --> 00:01:32.779
+The obvious move is to construct a property class directly.
+
+22
+00:01:32.779 --> 00:01:36.443
+That does not compile, because the concrete classes are internal.
+
+23
+00:01:36.443 --> 00:01:42.924
+You build them through factories on A2UI Property instead, and the factory you pick is a decision, not a formality.
+
+24
+00:01:42.924 --> 00:01:50.477
+The static ones take a value fixed when the component is sent: string, number, boolean, string enum, component id, child list, action.
+
+25
+00:01:50.477 --> 00:01:57.917
+The dynamic ones may instead carry a path that binds into the data model: dynamic string, dynamic number, dynamic boolean and so on.
+
+26
+00:01:57.917 --> 00:02:03.328
+Only dynamic properties can be bound, and only bound properties recompose when the data changes.
+
+27
+00:02:03.328 --> 00:02:07.950
+Choosing static for something an agent needs to bind is the first bug you will hit
+
+28
+00:02:07.950 --> 00:02:13.530
+and the symptom is a component that renders once with the right value and then never updates again.
+
+29
+00:02:13.530 --> 00:02:18.096
+For our row, all four are dynamic, because every one of them comes from the data.
+
+30
+00:02:18.096 --> 00:02:22.774
+There is a second decision hidden in each factory call, which is the required flag.
+
+31
+00:02:22.774 --> 00:02:27.283
+Marking a property required does not make the renderer throw when it is missing.
+
+32
+00:02:27.283 --> 00:02:33.596
+It goes into the JSON schema this component advertises, which is what an agent reads to know how to address you.
+
+33
+00:02:33.596 --> 00:02:40.980
+So required is a statement to whoever writes payloads, not a runtime guard, and you still need a sensible default on the read side.
+
+34
+00:02:40.980 --> 00:02:43.798
+That is why every bind call here ends in an elvis.
+
+35
+00:02:45.253 --> 00:02:49.766
+Now the content function, and the technique that matters more than any individual signature.
+
+36
+00:02:49.766 --> 00:02:56.072
+Write the content function the way you would guess it: an override taking a scope, some properties and a modifier.
+
+37
+00:02:56.072 --> 00:03:01.770
+Build it, and the compiler says content overrides nothing, and then it does something genuinely useful.
+
+38
+00:03:01.770 --> 00:03:03.651
+It prints the signature it wanted.
+
+39
+00:03:03.651 --> 00:03:07.910
+Content is an extension function on A2UI Component Scope, not a plain method.
+
+40
+00:03:07.910 --> 00:03:09.846
+That also explains the second error
+
+41
+00:03:09.846 --> 00:03:13.939
+because bind was unresolved: inside an extension the scope is the receiver
+
+42
+00:03:13.939 --> 00:03:17.922
+so its members are already available and passing it explicitly is wrong.
+
+43
+00:03:17.922 --> 00:03:22.790
+This is worth internalising, because there is no API reference site for these libraries.
+
+44
+00:03:22.790 --> 00:03:25.003
+The compiler error is the documentation.
+
+45
+00:03:25.003 --> 00:03:28.487
+Guess the shape, build it, and copy what it prints back at you.
+
+46
+00:03:28.487 --> 00:03:31.640
+I wrote this component that way and it took three builds.
+
+47
+00:03:31.640 --> 00:03:36.951
+It is worth saying why guessing is a reasonable strategy here rather than a sign of bad tooling.
+
+48
+00:03:36.951 --> 00:03:44.750
+These libraries are alpha, the signatures are still moving, and any reference you found written down would be out of date before you used it.
+
+49
+00:03:44.750 --> 00:03:50.005
+The compiler is reading the actual artifact on your disk, so it is never wrong and never stale.
+
+50
+00:03:50.005 --> 00:03:55.371
+Build early and build often, and treat a red error as the fastest documentation lookup available.
+
+51
+00:03:58.006 --> 00:03:59.909
+So here is the corrected version.
+
+52
+00:03:59.909 --> 00:04:04.579
+Override fun, A2UI Component Scope dot Content, taking properties and a modifier.
+
+53
+00:04:04.579 --> 00:04:06.193
+And then four calls to bind.
+
+54
+00:04:06.193 --> 00:04:13.918
+Note where bind lives: it is an extension on the properties, taking the property you declared, and it returns a nullable of that type.
+
+55
+00:04:13.918 --> 00:04:17.608
+So properties dot bind of symbol, with an elvis for the default.
+
+56
+00:04:17.608 --> 00:04:22.681
+Each of those reads the data model and recomposes this component when that path changes.
+
+57
+00:04:22.681 --> 00:04:27.005
+That is the entire binding layer as far as a component author is concerned.
+
+58
+00:04:27.005 --> 00:04:33.001
+One detail in that elvis worth noticing: bind returns a nullable even for a property you marked required
+
+59
+00:04:33.001 --> 00:04:36.633
+because required is a schema statement rather than a guarantee.
+
+60
+00:04:36.633 --> 00:04:44.243
+If an agent omits it you get null, and a component that crashes on a missing field is a component that takes the whole surface down.
+
+61
+00:04:44.243 --> 00:04:45.569
+Default, do not assert.
+
+62
+00:04:45.569 --> 00:04:49.477
+And once the values are bound, the rest is not A2UI at all.
+
+63
+00:04:49.477 --> 00:04:52.605
+This is a Row, a Column, two Texts and a when expression.
+
+64
+00:04:52.605 --> 00:04:56.116
+It is ordinary Compose, and that is the point worth dwelling on.
+
+65
+00:04:56.116 --> 00:05:03.084
+The branching on instrument kind, options in purple, bonds in teal, equities in the default colour, is code in your repository.
+
+66
+00:05:03.084 --> 00:05:04.620
+It compiles into the binary.
+
+67
+00:05:04.620 --> 00:05:08.186
+It goes through your review, your tests and your release process.
+
+68
+00:05:08.186 --> 00:05:09.613
+An agent cannot change it.
+
+69
+00:05:09.613 --> 00:05:17.130
+What an agent can do is say render a Position Row with this data, which is the same class of statement as render a Text with this string.
+
+70
+00:05:17.130 --> 00:05:23.988
+That is why this satisfies a no runtime generation constraint while still letting one component cover three instrument types.
+
+71
+00:05:23.988 --> 00:05:28.267
+And because it is ordinary Compose, everything you already know still applies.
+
+72
+00:05:28.267 --> 00:05:32.273
+You can use your own theme, your own typography, your own spacing tokens.
+
+73
+00:05:32.273 --> 00:05:35.729
+You can call into existing composables from your design system.
+
+74
+00:05:35.729 --> 00:05:41.271
+The modifier parameter is passed in by the renderer and you should apply it to your outermost element
+
+75
+00:05:41.271 --> 00:05:43.849
+because that is how the parent controls layout.
+
+76
+00:05:43.849 --> 00:05:48.348
+Forget that and your component will ignore the width the surface tried to give it.
+
+77
+00:05:48.348 --> 00:05:49.525
+The component exists.
+
+78
+00:05:49.525 --> 00:05:55.182
+Getting the renderer to find it is where I lost the most time, so this part is worth doing carefully.
+
+79
+00:05:55.182 --> 00:06:01.367
+My first attempt was to put the component in its own catalog and hand the processor both, Material's and mine.
+
+80
+00:06:01.367 --> 00:06:06.146
+It compiled, it ran, and the row rendered as a red error chip with nothing in logcat.
+
+81
+00:06:06.146 --> 00:06:09.182
+The reason is in the protocol rather than the library.
+
+82
+00:06:09.182 --> 00:06:12.218
+Create surface carries a single catalog id, one string
+
+83
+00:06:12.218 --> 00:06:17.560
+so a surface resolves against exactly the catalog it names and anything missing fails silently.
+
+84
+00:06:17.560 --> 00:06:21.551
+What works is building one catalog that extends Material's: your own id
+
+85
+00:06:21.551 --> 00:06:25.600
+Material's components plus yours, Material's functions and theme schema.
+
+86
+00:06:25.600 --> 00:06:27.230
+Then the agent names your id.
+
+87
+00:06:27.230 --> 00:06:31.278
+Version one point zero adds mixable catalogs and removes this constraint
+
+88
+00:06:31.278 --> 00:06:33.640
+but on zero point nine this is the pattern
+
+89
+00:06:33.640 --> 00:06:37.125
+and the silent failure is what makes it expensive to discover.
+
+90
+00:06:37.125 --> 00:06:41.567
+Worth dwelling on how that failure presented, because it is the expensive part.
+
+91
+00:06:41.567 --> 00:06:43.366
+No exception. Nothing in logcat.
+
+92
+00:06:43.366 --> 00:06:49.382
+Just a small red chip where the row should be, which is the same thing you see when an enum value is wrong.
+
+93
+00:06:49.382 --> 00:06:51.856
+So when a component renders as an error chip
+
+94
+00:06:51.856 --> 00:06:56.748
+the two things to check in order are whether the catalog naming it actually contains it
+
+95
+00:06:56.748 --> 00:07:00.346
+and whether every enum value you sent is one the catalog allows.
+
+96
+00:07:00.346 --> 00:07:02.352
+In the app that is a one line change.
+
+97
+00:07:02.352 --> 00:07:07.394
+Wrap the Material catalog in extended catalog, and hand the processor a list containing that.
+
+98
+00:07:07.394 --> 00:07:12.599
+Everything the Material catalog could render still renders, because its components are in there.
+
+99
+00:07:12.599 --> 00:07:14.388
+And now Position Row renders too.
+
+100
+00:07:14.388 --> 00:07:19.755
+Note also what did not change: the Material components are still resolving through the same catalog
+
+101
+00:07:19.755 --> 00:07:23.875
+because we kept its component list and added to it rather than replacing it.
+
+102
+00:07:23.875 --> 00:07:30.923
+Getting that wrong, by passing only your own components, would make every Text and Column on the surface fail the same silent way.
+
+103
+00:07:30.923 --> 00:07:32.812
+Which changes what the agent sends.
+
+104
+00:07:32.812 --> 00:07:38.808
+Before, a row was three basic components: a Row containing two Texts, with the layout expressed in the payload.
+
+105
+00:07:38.808 --> 00:07:42.698
+Now it is one component, named Position Row, with four bound properties.
+
+106
+00:07:42.698 --> 00:07:46.803
+The payload got smaller and, more importantly, it stopped describing layout.
+
+107
+00:07:46.803 --> 00:07:51.071
+The agent no longer says put the symbol on the left and the value on the right.
+
+108
+00:07:51.071 --> 00:07:55.285
+It says here is a position, and the client decides what a position looks like.
+
+109
+00:07:55.285 --> 00:08:00.525
+That is a better division of responsibility, and it is also fewer things for a reviewer to check.
+
+110
+00:08:00.525 --> 00:08:02.523
+There is a governance angle here too.
+
+111
+00:08:02.523 --> 00:08:07.223
+A payload that names Position Row is shorter to review than one that describes a layout
+
+112
+00:08:07.223 --> 00:08:11.005
+and it cannot express anything the component does not already support.
+
+113
+00:08:11.005 --> 00:08:13.165
+The schema you declared is the boundary.
+
+114
+00:08:13.165 --> 00:08:16.623
+An agent cannot send a fifth property and have it mean something
+
+115
+00:08:16.623 --> 00:08:21.485
+which is exactly the property you want when someone asks what a payload could possibly do.
+
+116
+00:08:21.485 --> 00:08:26.757
+Here is the finished file in Android Studio, resolved and indexed, which is worth seeing whole.
+
+117
+00:08:26.757 --> 00:08:28.865
+The four dynamic properties at the top
+
+118
+00:08:28.865 --> 00:08:31.751
+the name and description that form the wire contract
+
+119
+00:08:31.751 --> 00:08:36.246
+the properties list that is the schema, the content extension with its four binds
+
+120
+00:08:36.246 --> 00:08:37.689
+and the layout underneath.
+
+121
+00:08:37.689 --> 00:08:42.017
+Ninety five lines including comments, and that is a complete custom component.
+
+122
+00:08:42.017 --> 00:08:48.510
+And notice the inlay hints the IDE is showing: parameter names on every factory call, and usage counts in the gutter.
+
+123
+00:08:48.510 --> 00:08:54.393
+None of that works without a successful Gradle sync, which is the one thing worth fixing before you start.
+
+124
+00:08:54.393 --> 00:08:55.353
+So let us see it.
+
+125
+00:08:55.893 --> 00:08:57.641
+One holding, and it is an option.
+
+126
+00:08:57.641 --> 00:09:02.569
+The symbol on the left with the contract detail underneath, the value on the right in purple.
+
+127
+00:09:02.569 --> 00:09:04.689
+None of that layout came from the agent.
+
+128
+00:09:04.689 --> 00:09:10.146
+The payload said Position Row with four values, and everything you see is the composable we just wrote.
+
+129
+00:09:10.146 --> 00:09:11.975
+And here is forty of them, mixed.
+
+130
+00:09:11.975 --> 00:09:17.130
+Equities plain, options purple with a contract line, bonds teal with a coupon and a maturity.
+
+131
+00:09:17.130 --> 00:09:22.118
+One component, one wire name, one property schema, three visual treatments chosen by data.
+
+132
+00:09:22.118 --> 00:09:28.436
+If you had done this with basic catalog components it would be three templates and a selection rule on the server.
+
+133
+00:09:28.436 --> 00:09:35.696
+Here it is one component and a kind field, and the decision about what a bond looks like lives in the app where it can be reviewed.
+
+134
+00:09:36.574 --> 00:09:40.377
+To close, the honest accounting. The component is ninety five lines.
+
+135
+00:09:40.377 --> 00:09:42.110
+Getting there took three builds
+
+136
+00:09:42.110 --> 00:09:45.466
+all of them fixing signatures that the compiler then told me
+
+137
+00:09:45.466 --> 00:09:51.226
+and one silent failure from the catalog rule that took longer than all the compile errors put together.
+
+138
+00:09:51.226 --> 00:09:57.378
+The real cost is not this file, it is that a custom component is a renderer change on every platform you ship.
+
+139
+00:09:57.378 --> 00:10:01.014
+One component here is one component on iOS and one on the web too
+
+140
+00:10:01.014 --> 00:10:05.823
+and they have to agree on the property schema or the same payload renders differently.
+
+141
+00:10:05.823 --> 00:10:13.597
+So the rule of thumb is the one from the last session: reach for this when one component replaces several templates, and not for a one off.
+
+142
+00:10:13.597 --> 00:10:17.512
+For a team already building its own renderers, this is not extra work.
+
+143
+00:10:17.512 --> 00:10:22.154
+It is the thing you were going to build anyway, pointed at a problem worth solving.

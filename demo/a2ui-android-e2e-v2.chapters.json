@@ -1,0 +1,38 @@
+[
+  {
+    "start": 0.0,
+    "title": "A2UI end to end"
+  },
+  {
+    "start": 4.0,
+    "title": "What end to end means"
+  },
+  {
+    "start": 23.396644,
+    "title": "The agent's surfaces"
+  },
+  {
+    "start": 46.116643999999994,
+    "title": "The client loop"
+  },
+  {
+    "start": 62.221087999999995,
+    "title": "Two loops, and that is all"
+  },
+  {
+    "start": 77.221088,
+    "title": "Streaming the first surface"
+  },
+  {
+    "start": 96.536689,
+    "title": "The first round trip"
+  },
+  {
+    "start": 116.76965999999999,
+    "title": "Confirming"
+  },
+  {
+    "start": 130.76966,
+    "title": "The agent's view"
+  }
+]

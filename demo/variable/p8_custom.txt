@@ -1,0 +1,30 @@
+  THE ESCAPE HATCH: MOVE VARIABILITY INTO A COMPONENT
+
+  When "kind" variation keeps multiplying templates, stop adding
+  templates and add a component instead.
+
+  interface A2uiComponent {
+      val name: String                    // "PositionRow"
+      val properties: List<A2uiProperty<*>>
+      @Composable fun Content(scope, props, modifier)
+  }
+
+  Inside Content you are writing ordinary Compose. Branching there is
+  YOUR reviewed code in YOUR repository, compiled into the app.
+
+      equity   -> three lines
+      option   -> strike, expiry, delta
+      bond     -> coupon, maturity, yield
+
+  One component, one wire name, one property schema. The agent sends
+  { "component": "PositionRow", "kind": {"path":"kind"}, ... }
+
+  WHY THIS SATISFIES THE CONSTRAINT
+     The branching ships in the binary and goes through code review,
+     release sign-off and your test suite. It is not generated, not
+     sent over the wire, and not something an agent can alter.
+
+  COST
+     A custom component is a renderer change on every platform you
+     support. Worth it when one component replaces five templates;
+     not worth it for a one-off.

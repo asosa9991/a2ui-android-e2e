@@ -17,3 +17,17 @@ demo/**/page/
 demo/**/publish.*
 *.aiff
 __pycache__/
+# scratch: contact sheets, extracted frames, build logs
+demo/**/build*.log
+demo/*/build*.log
+demo/**/*_sheet.png
+demo/**/z_[0-9].png
+demo/**/w_[0-9].png
+demo/**/v_[0-9].png
+demo/**/o_[0-9].png
+demo/**/q_[0-9]*.png
+demo/**/f_[0-9].png
+demo/**/g_[0-9].png
+demo/**/cs_[0-9].png
+demo/**/frame_*.png
+demo/**/*_frame*.png

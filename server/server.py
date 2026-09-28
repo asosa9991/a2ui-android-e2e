@@ -10,12 +10,17 @@ The emulator reaches the host at 10.0.2.2.
 """
 
 import json
+import sys
 import time
+
+import variable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PORT = 8765
 VERSION = "v0.9"
-CATALOG = "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json"
+# The client registers ONE catalog: Material's components plus ours.
+# A surface declaring the plain basic-catalog id would resolve nothing.
+CATALOG = "example.com:positions-v1"
 
 
 def surface(sid):
@@ -208,6 +213,11 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path.startswith("/surface"):
+            if VARIABLE_MODE:
+                print("→ GET /surface  serving the holdings template, dataset 0",
+                      flush=True)
+                self._stream(variable.messages(0, first=True), pace=0.35)
+                return
             print(f"→ GET {self.path}  serving the transfer form", flush=True)
             self._stream(form_messages())
         else:
@@ -222,6 +232,12 @@ class Handler(BaseHTTPRequestHandler):
         name = evt.get("name", "")
         ctx = evt.get("context") or {}
         print(f"← POST /event  {name}  context={json.dumps(ctx)}", flush=True)
+        if name == "next_dataset":
+            i = int(ctx.get("index") or 0)
+            print(f"→ same components, dataset {i}: sending ONLY updateDataModel",
+                  flush=True)
+            self._stream(variable.messages(i, first=False), pace=0.1)
+            return
         handler = ROUTES.get(name)
         if not handler:
             self.send_error(400, "unknown event")
@@ -230,7 +246,10 @@ class Handler(BaseHTTPRequestHandler):
         self._stream(handler(ctx), pace=0.3)
 
 
+VARIABLE_MODE = "--variable" in sys.argv
+
+
 if __name__ == "__main__":
-    print(f"A2UI transfer agent on :{PORT}  (emulator reaches it at 10.0.2.2)",
-          flush=True)
+    mode = "holdings template (variable data)" if VARIABLE_MODE else "transfer flow"
+    print(f"A2UI agent on :{PORT} — {mode}  (emulator: 10.0.2.2)", flush=True)
     ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()

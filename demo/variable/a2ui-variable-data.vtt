@@ -1,0 +1,893 @@
+WEBVTT
+
+1
+00:00:04.000 --> 00:00:06.991
+Here is the constraint most regulated teams end up with.
+
+2
+00:00:06.991 --> 00:00:14.041
+You may not let a model generate user interface at runtime, because every screen a customer sees has to be reviewed before it ships.
+
+3
+00:00:14.041 --> 00:00:18.421
+So you go the template route: pre-authored, reviewed structures, filled with data.
+
+4
+00:00:18.421 --> 00:00:21.519
+That works beautifully as long as the data is predictable.
+
+5
+00:00:21.519 --> 00:00:23.442
+Then you hit a case where it is not.
+
+6
+00:00:23.442 --> 00:00:26.700
+An account with no holdings, or one holding, or four hundred.
+
+7
+00:00:26.700 --> 00:00:29.958
+Groups nested two deep for one customer and flat for another.
+
+8
+00:00:29.958 --> 00:00:33.910
+The instinct is that templates have run out and you now need generated UI.
+
+9
+00:00:33.910 --> 00:00:36.688
+That instinct is wrong, and the rest of this is why.
+
+10
+00:00:36.688 --> 00:00:40.900
+The answer is already in the protocol, in a place that is easy to read past.
+
+11
+00:00:40.900 --> 00:00:44.282
+A component's children property accepts two different things.
+
+12
+00:00:44.282 --> 00:00:47.774
+The obvious one is an array of child identifiers, a fixed list.
+
+13
+00:00:47.774 --> 00:00:51.322
+The second one is an object: a component identifier, and a path.
+
+14
+00:00:51.322 --> 00:00:55.812
+That says render this one component once for every item in the list at that path.
+
+15
+00:00:55.812 --> 00:01:00.247
+So the number of rows on screen is a property of the data, not of the structure.
+
+16
+00:01:00.247 --> 00:01:05.846
+You write one row, review one row, and the same reviewed structure renders zero rows or four hundred.
+
+17
+00:01:08.368 --> 00:01:09.754
+Here is that in practice.
+
+18
+00:01:09.754 --> 00:01:15.188
+A column whose children are a template pointing at slash holdings, and the row component it names.
+
+19
+00:01:15.188 --> 00:01:18.404
+That row is two text components bound to symbol and value.
+
+20
+00:01:18.404 --> 00:01:20.678
+Notice those paths have no leading slash.
+
+21
+00:01:20.678 --> 00:01:27.110
+Inside a template, a bare path is relative to the item currently being rendered, so symbol means this item's symbol.
+
+22
+00:01:27.110 --> 00:01:31.435
+The column does not know how many rows there will be, and it does not need to.
+
+23
+00:01:31.435 --> 00:01:33.653
+Nothing here changes when the data does.
+
+24
+00:01:33.653 --> 00:01:41.195
+One more thing to notice: the row itself is a Row component with two children, so it is an ordinary reviewed component in every respect.
+
+25
+00:01:41.195 --> 00:01:43.856
+There is nothing special about being a template.
+
+26
+00:01:43.856 --> 00:01:50.122
+Any component can be one, and the same component can be a template in one place and a plain child somewhere else.
+
+27
+00:01:50.122 --> 00:01:53.122
+That relative path is doing more work than it appears to.
+
+28
+00:01:53.122 --> 00:01:58.902
+Because a path inside a template resolves against the current item, a template can contain another template.
+
+29
+00:01:58.902 --> 00:02:02.327
+This is a group block: a card, a title bound to the group's name
+
+30
+00:02:02.327 --> 00:02:05.966
+and then a column whose children are a template pointing at holdings
+
+31
+00:02:05.966 --> 00:02:07.143
+with no leading slash.
+
+32
+00:02:07.143 --> 00:02:08.909
+That means this group's holdings.
+
+33
+00:02:08.909 --> 00:02:12.709
+And the component it renders is the same holding row from a moment ago.
+
+34
+00:02:12.709 --> 00:02:17.793
+One reviewed row component, used at two different depths, against two different shapes of data.
+
+35
+00:02:17.793 --> 00:02:23.787
+That is how a fixed component tree renders a structure whose depth and width you did not know when you wrote it.
+
+36
+00:02:23.787 --> 00:02:25.927
+It is worth pausing on why this is safe.
+
+37
+00:02:25.927 --> 00:02:29.888
+The nesting depth is bounded by the components you wrote, not by the data.
+
+38
+00:02:29.888 --> 00:02:32.724
+A group can contain holdings because you said it can.
+
+39
+00:02:32.724 --> 00:02:39.467
+If the data arrives three levels deep and your templates only nest two, you get two levels rendered, not an unexpected screen.
+
+40
+00:02:39.467 --> 00:02:44.016
+The data can change how much you see; it can never invent a shape you did not author.
+
+41
+00:02:44.016 --> 00:02:48.619
+And this is not theoretical for you, because your own brokerage payload already does it.
+
+42
+00:02:48.619 --> 00:02:50.973
+Four template bindings, two of them relative.
+
+43
+00:02:50.973 --> 00:02:55.525
+Groups render from a template, positions render from a template relative to their group
+
+44
+00:02:55.525 --> 00:03:00.703
+and the key value row template is used twice at two different depths for two different data shapes.
+
+45
+00:03:00.703 --> 00:03:04.679
+That payload renders three groups, each with a different number of positions
+
+46
+00:03:04.679 --> 00:03:08.864
+each with a different number of detail rows, from a component tree written once.
+
+47
+00:03:08.864 --> 00:03:13.572
+The pattern you need for non-deterministic data is the pattern already in your repository.
+
+48
+00:03:13.572 --> 00:03:17.652
+Which is the argument to take to your reviewers, because it is not a proposal.
+
+49
+00:03:17.652 --> 00:03:23.354
+It is a description of something already running in your codebase that they have presumably already approved.
+
+50
+00:03:24.256 --> 00:03:28.954
+So let us push it. Same components, four datasets that look nothing like each other.
+
+51
+00:03:28.954 --> 00:03:33.996
+This function is the only thing that differs between the four screens you are about to see.
+
+52
+00:03:33.996 --> 00:03:38.040
+Empty. One holding. Forty holdings. And three groups of holdings, nested.
+
+53
+00:03:38.040 --> 00:03:44.743
+Different lengths, different shapes, one with a populated groups list and an empty flat list and one the other way round.
+
+54
+00:03:44.743 --> 00:03:47.956
+The component tree above it is untouched between all four.
+
+55
+00:03:47.956 --> 00:03:54.603
+And note what is not in this function: there is no component identifier, no layout, no branching on which widget to use.
+
+56
+00:03:54.603 --> 00:03:58.370
+It returns values. That is the line you want to be able to point at.
+
+57
+00:04:00.874 --> 00:04:01.917
+Start with nothing.
+
+58
+00:04:01.917 --> 00:04:06.858
+The template at slash holdings produces no children, so the list renders as nothing at all
+
+59
+00:04:06.858 --> 00:04:13.830
+and the empty message is a text component bound to a string that happens to have content in this dataset and not in the others.
+
+60
+00:04:13.830 --> 00:04:20.144
+That is worth saying plainly: the empty state is not a different screen, it is the same screen with different data.
+
+61
+00:04:20.144 --> 00:04:22.303
+Tap through and now there is one holding.
+
+62
+00:04:22.303 --> 00:04:25.780
+The empty message went away because its bound string is now blank.
+
+63
+00:04:25.780 --> 00:04:29.204
+One row appeared because the list at slash holdings has one item.
+
+64
+00:04:29.204 --> 00:04:31.311
+No new components were sent to get here.
+
+65
+00:04:34.724 --> 00:04:39.673
+Again, and now there are forty. Forty rows, from the same single row component, scrolling.
+
+66
+00:04:39.673 --> 00:04:46.877
+If you were generating this, forty rows would be forty component definitions crossing the network and forty things nobody reviewed.
+
+67
+00:04:46.877 --> 00:04:50.232
+Here it is one reviewed component and a list of forty values.
+
+68
+00:04:50.232 --> 00:04:52.981
+This is also where the performance argument lands.
+
+69
+00:04:52.981 --> 00:04:57.381
+Forty rows of generated components would be forty definitions parsed and diffed.
+
+70
+00:04:57.381 --> 00:05:03.815
+Here the client already has the row and is mapping a list over it, which is the same work a native list adapter does.
+
+71
+00:05:03.815 --> 00:05:08.819
+Bigger data does not mean a bigger payload of structure, it means a longer array of values.
+
+72
+00:05:08.819 --> 00:05:15.822
+And the last one changes shape entirely: three groups, each holding a different number of positions, rendered by the nested template.
+
+73
+00:05:15.822 --> 00:05:19.298
+Technology with six, financials with three, healthcare with three.
+
+74
+00:05:19.298 --> 00:05:24.089
+Two levels deep, and still the same component tree that drew the empty screen a minute ago.
+
+75
+00:05:24.089 --> 00:05:26.196
+Depth and width both came from the data.
+
+76
+00:05:26.196 --> 00:05:30.040
+And if a fourth dataset arrived tomorrow with ten groups instead of three
+
+77
+00:05:30.040 --> 00:05:33.304
+or three levels instead of two where your templates support it
+
+78
+00:05:33.304 --> 00:05:35.990
+nothing here would need rebuilding or re-reviewing.
+
+79
+00:05:35.990 --> 00:05:38.359
+That is the property you are actually buying.
+
+80
+00:05:38.359 --> 00:05:42.024
+That is the visible half. The wire tells the other half of the story.
+
+81
+00:05:42.024 --> 00:05:44.665
+Here is the agent's log for that whole sequence.
+
+82
+00:05:44.665 --> 00:05:50.056
+One create surface and one update components at the start, and after that, only update data model.
+
+83
+00:05:50.056 --> 00:05:54.842
+Three times. The structure crossed the network once, at the beginning, and never again.
+
+84
+00:05:54.842 --> 00:05:59.683
+Every screen change after that was data. That has three consequences worth caring about.
+
+85
+00:05:59.683 --> 00:06:03.149
+It is small, because you are sending values rather than a tree.
+
+86
+00:06:03.149 --> 00:06:08.045
+It is fast, because the client is diffing a data model rather than rebuilding components.
+
+87
+00:06:08.045 --> 00:06:15.581
+And it is auditable, because the structure a customer saw is a known artifact and the only variable is the data you can log alongside it.
+
+88
+00:06:15.581 --> 00:06:18.552
+It also means a re-render is cheap enough to do often.
+
+89
+00:06:18.552 --> 00:06:23.338
+If holdings update every few seconds, you are sending a small data model, not a screen.
+
+90
+00:06:23.338 --> 00:06:26.347
+One template will not always be enough, and that is fine.
+
+91
+00:06:26.347 --> 00:06:29.883
+The answer is not to start generating, it is to have more than one.
+
+92
+00:06:29.883 --> 00:06:33.691
+Keep a dictionary of templates, every one of them written and reviewed.
+
+93
+00:06:33.691 --> 00:06:37.821
+Then write a pure function that maps the shape of the data to one identifier.
+
+94
+00:06:37.821 --> 00:06:40.770
+No holdings and no groups gives you the empty template.
+
+95
+00:06:40.770 --> 00:06:44.257
+Groups present gives you the grouped one. Otherwise the flat one.
+
+96
+00:06:44.257 --> 00:06:46.402
+Three things matter about that function.
+
+97
+00:06:46.402 --> 00:06:50.746
+It is deterministic, so the same inputs give the same screen and you can test it.
+
+98
+00:06:50.746 --> 00:06:57.129
+It asserts that the identifier exists, so there is no path where an unexpected shape falls back to something generated.
+
+99
+00:06:57.129 --> 00:07:03.994
+And it logs the identifier alongside the surface, so what a customer saw is a commit hash plus a data model rather than a guess.
+
+100
+00:07:03.994 --> 00:07:07.962
+The agent is choosing between reviewed options. It is never composing one.
+
+101
+00:07:07.962 --> 00:07:15.578
+That distinction is the whole thing your reviewers care about, and it is worth writing down in exactly those words when you take this to them.
+
+102
+00:07:15.578 --> 00:07:18.582
+One more detail worth copying: make that function total.
+
+103
+00:07:18.582 --> 00:07:23.302
+Every shape of data should map to some template, including the shapes you did not expect
+
+104
+00:07:23.302 --> 00:07:26.520
+because the alternative is an exception path at request time
+
+105
+00:07:26.520 --> 00:07:30.220
+and exception paths are exactly where unreviewed behaviour creeps in.
+
+106
+00:07:30.220 --> 00:07:35.154
+An explicit fallback template that says we could not render this is still a reviewed screen.
+
+107
+00:07:35.203 --> 00:07:39.634
+There is one more move that saves you templates, and it is the one teams miss most often.
+
+108
+00:07:39.634 --> 00:07:44.764
+Suppose two screens differ only in that one shows the amount large and one shows it normal.
+
+109
+00:07:44.764 --> 00:07:46.455
+The instinct is two templates.
+
+110
+00:07:46.455 --> 00:07:52.091
+But variant is a property like any other, so you can bind it to the data model instead of fixing it.
+
+111
+00:07:52.091 --> 00:07:56.093
+The agent sends h2 or body in the data, and the structure is identical.
+
+112
+00:07:56.093 --> 00:08:04.154
+That works for anything the catalog models as an enumerated property: text variants, button variants, row and column alignment, list direction.
+
+113
+00:08:04.154 --> 00:08:07.874
+There is a limit, and it is the one we hit earlier in this series.
+
+114
+00:08:07.874 --> 00:08:10.692
+The value has to be one the catalog already allows
+
+115
+00:08:10.692 --> 00:08:14.243
+and an unknown value renders an error chip rather than throwing
+
+116
+00:08:14.243 --> 00:08:20.218
+so you validate against the catalog schema before you send rather than finding out on a customer's screen.
+
+117
+00:08:20.218 --> 00:08:23.431
+Which sharpens the test into three cases rather than two.
+
+118
+00:08:23.431 --> 00:08:26.193
+Varies in how many: a template with a bound list.
+
+119
+00:08:26.193 --> 00:08:31.266
+Varies in degree: a bound enumerated property. Varies in kind: a second reviewed template.
+
+120
+00:08:31.266 --> 00:08:35.324
+Most of what teams call non-deterministic turns out to be the first two.
+
+121
+00:08:35.324 --> 00:08:40.917
+One more property of this approach is worth having, because it solves a problem that usually gets solved badly.
+
+122
+00:08:40.917 --> 00:08:45.506
+Because structure and data are separate messages, they do not have to arrive together.
+
+123
+00:08:45.506 --> 00:08:51.270
+This function sends create surface and update components the first time, and after that only the data model.
+
+124
+00:08:51.270 --> 00:08:55.006
+Which means you can put the skeleton on screen before the data exists.
+
+125
+00:08:55.006 --> 00:08:57.301
+If your positions service takes two seconds
+
+126
+00:08:57.301 --> 00:09:00.343
+send the structure immediately and the data when it lands
+
+127
+00:09:00.343 --> 00:09:03.438
+and the customer sees a real screen rather than a spinner.
+
+128
+00:09:03.438 --> 00:09:06.267
+And because the data model can be replaced repeatedly
+
+129
+00:09:06.267 --> 00:09:09.469
+you can stream in stages: the summary as soon as you have it
+
+130
+00:09:09.469 --> 00:09:11.710
+the holdings when the slower call returns.
+
+131
+00:09:11.710 --> 00:09:13.098
+The client diffs each one.
+
+132
+00:09:13.098 --> 00:09:14.913
+Nothing about the template changes
+
+133
+00:09:14.913 --> 00:09:18.648
+and you never had to decide in advance what a loading state looks like
+
+134
+00:09:18.648 --> 00:09:22.171
+because the loading state is just the screen with less data in it.
+
+135
+00:09:22.171 --> 00:09:26.654
+And because the client keeps the structure, a reconnect does not mean re-sending it.
+
+136
+00:09:26.654 --> 00:09:29.696
+You send the data model again and the screen is restored.
+
+137
+00:09:29.696 --> 00:09:32.827
+Now the honest part, because this pattern is not universal.
+
+138
+00:09:32.827 --> 00:09:36.093
+First, version zero point nine has no conditional rendering.
+
+139
+00:09:36.093 --> 00:09:39.360
+You cannot say render this card only when the list is empty.
+
+140
+00:09:39.360 --> 00:09:42.463
+You can bind text to an empty string so it takes no space
+
+141
+00:09:42.463 --> 00:09:45.620
+or bind a list to nothing so its template produces nothing
+
+142
+00:09:45.620 --> 00:09:48.723
+but a container bound to nothing still draws its own box.
+
+143
+00:09:48.723 --> 00:09:56.780
+That is why the empty state here is a bare text rather than a card: I built it as a card first and it left an empty rectangle on every other screen.
+
+144
+00:09:56.780 --> 00:09:59.229
+Second, variation in kind is still structure.
+
+145
+00:09:59.229 --> 00:10:05.653
+A payment that needs a date picker and one that needs a dropdown are two templates, not one template with clever data.
+
+146
+00:10:05.653 --> 00:10:10.280
+Third, if the set of possible screens is genuinely open ended, no fixed set covers it
+
+147
+00:10:10.280 --> 00:10:15.669
+and that is the case where the constraint is doing its job by telling you the requirement is wrong.
+
+148
+00:10:15.669 --> 00:10:18.718
+Which gives you a test you can apply in a design review.
+
+149
+00:10:18.718 --> 00:10:21.875
+Ask whether the thing varies in how many, or in what kind.
+
+150
+00:10:21.875 --> 00:10:24.325
+How many is data, and one template covers it.
+
+151
+00:10:24.325 --> 00:10:31.511
+What kind is structure, and it needs another reviewed template, or the variation needs to move into a bound property like a variant.
+
+152
+00:10:31.511 --> 00:10:34.831
+There is a fourth limit worth naming, which is version drift.
+
+153
+00:10:34.831 --> 00:10:41.201
+These enumerations are catalog properties, so they can change between catalog versions independently of the protocol.
+
+154
+00:10:41.201 --> 00:10:48.985
+Pin the catalog identifier you author against, and treat a catalog upgrade as a change that needs the same snapshot tests as a template change.
+
+155
+00:10:48.985 --> 00:10:55.714
+And if the kind variation keeps multiplying templates, there is one more move, and it is the one your team is already positioned for.
+
+156
+00:10:55.714 --> 00:10:58.104
+Stop adding templates and add a component.
+
+157
+00:10:58.104 --> 00:11:02.826
+A custom component has a name, a property schema, and a composable content function
+
+158
+00:11:02.826 --> 00:11:07.889
+and inside that content function you are writing ordinary Compose in your own repository.
+
+159
+00:11:07.889 --> 00:11:12.213
+So an equity renders three lines, an option renders strike, expiry and delta
+
+160
+00:11:12.213 --> 00:11:17.277
+and a bond renders coupon, maturity and yield, all from one component with one wire name.
+
+161
+00:11:17.277 --> 00:11:21.999
+The agent just sends component position row with a kind property bound to the data.
+
+162
+00:11:21.999 --> 00:11:25.981
+The reason this satisfies the constraint is worth being precise about.
+
+163
+00:11:25.981 --> 00:11:28.257
+That branching ships inside your binary.
+
+164
+00:11:28.257 --> 00:11:34.060
+It goes through code review, your test suite and release sign-off, exactly like any other screen code.
+
+165
+00:11:34.060 --> 00:11:38.497
+It is not generated, it does not cross the wire, and an agent cannot alter it.
+
+166
+00:11:38.497 --> 00:11:46.235
+What an agent can do is say render a position row with this data, which is the same kind of statement as render a text with this string.
+
+167
+00:11:46.235 --> 00:11:51.184
+The cost is real: a custom component is a renderer change on every platform you support
+
+168
+00:11:51.184 --> 00:11:54.939
+which for you means doing it on Android and on the web and on iOS.
+
+169
+00:11:54.939 --> 00:12:00.629
+So it is worth it when one component collapses five templates, and it is not worth it for a one-off.
+
+170
+00:12:00.629 --> 00:12:05.123
+But since your team is building custom renderers anyway, this is not extra work
+
+171
+00:12:05.123 --> 00:12:08.935
+it is the thing you were already going to build, used deliberately.
+
+172
+00:12:08.935 --> 00:12:15.672
+Before the governance piece, here is the test applied to real requirements, because that is where this becomes useful on a Monday.
+
+173
+00:12:15.672 --> 00:12:18.703
+These are the kinds of lines that end up in a ticket.
+
+174
+00:12:18.703 --> 00:12:24.707
+A positions list of anywhere from zero to four hundred rows: how many, so one template with a bound list.
+
+175
+00:12:24.707 --> 00:12:31.340
+Show unrealised profit and loss in red when negative: that is degree, so bind a property and add no template at all.
+
+176
+00:12:31.340 --> 00:12:37.344
+Retail customers see four summary rows and advisors see nine: still how many, same template, longer list.
+
+177
+00:12:37.344 --> 00:12:39.174
+Options positions needing strike
+
+178
+00:12:39.174 --> 00:12:43.062
+expiry and delta where equities do not: that is how many detail rows
+
+179
+00:12:43.062 --> 00:12:47.637
+which is already a template, unless options genuinely need a different component
+
+180
+00:12:47.637 --> 00:12:49.066
+and then it becomes kind.
+
+181
+00:12:49.066 --> 00:12:54.041
+A wire transfer needing a date picker where an internal transfer does not: that is kind
+
+182
+00:12:54.041 --> 00:12:58.730
+so a second reviewed template, and that is the right answer rather than a failure.
+
+183
+00:12:58.730 --> 00:13:05.478
+Whichever of forty disclosure blocks apply to this product: that looks like the worst case and it is actually how many
+
+184
+00:13:05.478 --> 00:13:08.508
+one disclosure template against a bound list of text.
+
+185
+00:13:08.508 --> 00:13:09.423
+And the last one
+
+186
+00:13:09.423 --> 00:13:13.769
+the screen should adapt to whatever the customer asks for: that is unbounded
+
+187
+00:13:13.769 --> 00:13:15.142
+it is not a data problem
+
+188
+00:13:15.142 --> 00:13:20.631
+and the correct response is to push back on the requirement rather than to reach for generation.
+
+189
+00:13:20.631 --> 00:13:22.575
+Seven requirements. Two templates.
+
+190
+00:13:22.575 --> 00:13:29.037
+That ratio is typical once you start classifying properly, and it is the number worth walking into the room with.
+
+191
+00:13:29.037 --> 00:13:31.750
+Which leaves the question your reviewers will actually ask.
+
+192
+00:13:31.750 --> 00:13:33.529
+Six practices make this hold up.
+
+193
+00:13:33.529 --> 00:13:39.034
+Keep templates in version control, so a screen change is a pull request rather than a database row.
+
+194
+00:13:39.034 --> 00:13:43.371
+Give each one an identifier and let the agent name only identifiers that exist
+
+195
+00:13:43.371 --> 00:13:48.153
+rejecting anything unknown at the edge instead of falling back to something generated.
+
+196
+00:13:48.153 --> 00:13:56.103
+Validate the data model against a schema before you send it, because a good template plus bad data renders a wrong screen rather than an error.
+
+197
+00:13:56.103 --> 00:14:02.220
+Snapshot test each template against a fixed dataset, the way the conformance suites in the A2UI repository do.
+
+198
+00:14:02.220 --> 00:14:04.777
+Log the template identifier with every surface
+
+199
+00:14:04.777 --> 00:14:07.613
+so when someone asks what the customer actually saw
+
+200
+00:14:07.613 --> 00:14:11.839
+the answer is a commit hash plus a data model and you can replay it exactly.
+
+201
+00:14:11.839 --> 00:14:14.229
+And review the set rather than each screen.
+
+202
+00:14:14.229 --> 00:14:17.788
+That last one is the whole argument: once a template is approved
+
+203
+00:14:17.788 --> 00:14:20.401
+every dataset it can render is approved with it
+
+204
+00:14:20.401 --> 00:14:24.627
+which is precisely why this satisfies a constraint that generated UI cannot.
+
+205
+00:14:24.627 --> 00:14:30.910
+And one practical note on the last point: review the template alongside a representative dataset, not on its own.
+
+206
+00:14:30.910 --> 00:14:34.524
+A reviewer looking at a component tree cannot picture forty rows.
+
+207
+00:14:34.524 --> 00:14:39.584
+A reviewer looking at the template plus the empty case, the one case and the many case can.
+
+208
+00:14:39.910 --> 00:14:41.133
+So, to put it together.
+
+209
+00:14:41.133 --> 00:14:47.302
+Non-deterministic data is not the same problem as non-deterministic structure, and the two get conflated constantly.
+
+210
+00:14:47.302 --> 00:14:49.589
+Cardinality, depth and content are all data
+
+211
+00:14:49.589 --> 00:14:55.013
+and the template form of children handles all three from a component tree you wrote and reviewed once.
+
+212
+00:14:55.013 --> 00:14:59.533
+Reach for a second template when the kind of thing changes, not when the amount does.
+
+213
+00:14:59.533 --> 00:15:02.777
+Your brokerage payload is already four template bindings deep
+
+214
+00:15:02.777 --> 00:15:06.766
+so the pattern is proven in your own codebase; what is missing is naming it
+
+215
+00:15:06.766 --> 00:15:09.212
+writing the test for how many versus what kind
+
+216
+00:15:09.212 --> 00:15:16.444
+and putting the governance around the template set so your reviewers can approve a catalogue instead of approving screens one at a time.
+
+217
+00:15:16.444 --> 00:15:21.656
+That is a smaller piece of work than building a generation pipeline you would then have to defend.
+
+218
+00:15:21.656 --> 00:15:24.421
+If you want a concrete next step, it is a short one.
+
+219
+00:15:24.421 --> 00:15:31.494
+Take the brokerage payload you already have, and write down which of its four template bindings are how many and which are what kind.
+
+220
+00:15:31.494 --> 00:15:36.653
+Then take the last ten screen requirements that came through, and classify each one the same way.
+
+221
+00:15:36.653 --> 00:15:42.396
+My expectation is that eight of them are cardinality, one is degree, and one genuinely needs a new template.
+
+222
+00:15:42.396 --> 00:15:49.681
+Put that number in front of whoever owns the constraint, because the argument you want to make is not that templates can be made to cope.
+
+223
+00:15:49.681 --> 00:15:54.361
+It is that the variation they are worried about was never structural in the first place.

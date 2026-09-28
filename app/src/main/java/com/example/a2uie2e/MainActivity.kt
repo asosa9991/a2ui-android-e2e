@@ -68,7 +68,8 @@ private fun TransferFlow() {
       localeProvider = A2uiLocaleProvider.Default,
     )
   }
-  val processor: CoreProcessor = remember { A2uiMessageProcessor(listOf(catalog)) }
+  // One catalog: Material's components plus ours, under our own id.
+  val processor: CoreProcessor = remember { A2uiMessageProcessor(listOf(extendedCatalog(catalog))) }
   val parser = remember { A2uiMessageParser() }
 
   // Drain the processor's inbound queue for as long as this screen is composed.

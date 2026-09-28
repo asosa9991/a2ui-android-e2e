@@ -1,0 +1,25 @@
+  ONE CATALOG PER SURFACE            (v0.9.1)
+
+  createSurface carries a single catalogId:
+
+      "createSurface": { "surfaceId": "...", "catalogId": "..." }
+
+  So a custom component CANNOT live in a second catalog beside the
+  Material one. The surface resolves against the catalog it names,
+  and anything missing renders as an Error chip -- silently.
+
+  WHAT WORKS: build ONE catalog that extends Material's.
+
+      fun extendedCatalog(base: A2uiCatalog): A2uiCatalog =
+          A2uiCatalog(
+              "example.com:positions-v1",      // your id
+              base.components + PositionRow,   // theirs + yours
+              base.functions,
+              base.themeSchema,
+          )
+
+      A2uiMessageProcessor(listOf(extendedCatalog(materialCatalog)))
+
+  and the agent names YOUR id in createSurface.
+
+  v1.0 adds mixable catalogs and removes this constraint.

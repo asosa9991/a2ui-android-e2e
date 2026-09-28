@@ -1,0 +1,82 @@
+[
+  {
+    "start": 0.0,
+    "title": "Building a custom component"
+  },
+  {
+    "start": 4.0,
+    "title": "What we are building"
+  },
+  {
+    "start": 35.459863999999996,
+    "title": "The interface"
+  },
+  {
+    "start": 84.798866,
+    "title": "3 \u2014 Properties"
+  },
+  {
+    "start": 89.453288,
+    "title": "Static or dynamic"
+  },
+  {
+    "start": 165.253288,
+    "title": "4 \u2014 Let the compiler teach you"
+  },
+  {
+    "start": 169.766349,
+    "title": "The error is the documentation"
+  },
+  {
+    "start": 238.006349,
+    "title": "The corrected signature"
+  },
+  {
+    "start": 285.569115,
+    "title": "5 \u2014 Rendering"
+  },
+  {
+    "start": 289.477188,
+    "title": "Ordinary Compose"
+  },
+  {
+    "start": 348.348208,
+    "title": "6 \u2014 Registering it"
+  },
+  {
+    "start": 355.182358,
+    "title": "One catalog per surface"
+  },
+  {
+    "start": 420.34603100000004,
+    "title": "The registration"
+  },
+  {
+    "start": 450.922992,
+    "title": "7 \u2014 The payload"
+  },
+  {
+    "start": 452.812108,
+    "title": "What the agent now sends"
+  },
+  {
+    "start": 501.48458000000005,
+    "title": "The component in the editor"
+  },
+  {
+    "start": 534.3926980000001,
+    "title": "8 \u2014 Running it"
+  },
+  {
+    "start": 535.8926980000001,
+    "title": "One position"
+  },
+  {
+    "start": 550.1464850000001,
+    "title": "Forty, three kinds"
+  },
+  {
+    "start": 576.5735410000001,
+    "title": "What it cost"
+  }
+]

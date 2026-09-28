@@ -1,0 +1,26 @@
+  DECLARING A COMPONENT'S SCHEMA          A2uiProperty factories
+
+  The concrete property classes (StringProperty, DynamicStringProperty,
+  ...) are INTERNAL. You cannot construct them. Use the factories:
+
+  STATIC   value fixed when the component is sent
+      A2uiProperty.string(key, required, description)
+      A2uiProperty.number(key, required, description)
+      A2uiProperty.boolean(key, required, description)
+      A2uiProperty.stringEnum(key, values, required, description)
+      A2uiProperty.stringList / numberList / booleanList / anyList
+      A2uiProperty.componentId(key, required, description)
+      A2uiProperty.childList(key, required, description)
+      A2uiProperty.action(key, required, description)
+      A2uiProperty.nested / nestedList     (object-shaped properties)
+
+  DYNAMIC  the agent may bind it to a { "path": ... }
+      A2uiProperty.dynamicString(key, required, description)
+      A2uiProperty.dynamicNumber(key, required, description)
+      A2uiProperty.dynamicBoolean(key, required, description)
+      A2uiProperty.dynamicStringList(key, required, description)
+      A2uiProperty.dynamicValue(key, required, description)
+
+  Only DYNAMIC properties can be bound to the data model, and only
+  bound properties recompose when it changes. Choosing static for
+  something an agent needs to bind is the bug you will hit first.

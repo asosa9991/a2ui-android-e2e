@@ -1,0 +1,18 @@
+  ALREADY IN YOUR OWN PAYLOAD
+  00_brokerage-positions-grouped.json
+
+  component               children template            path
+  ─────────────────────── ─────────────────────────── ──────────────
+  summary-list            kv-row-template             /summary
+  groups-list             group-template              /groups
+  group-positions-list    position-template           positions   <- relative
+  position-detail-list    kv-row-template             details     <- relative
+
+  Four template bindings. Two of them relative.
+
+  That renders 3 groups x N positions x M detail rows from a component
+  tree that is written once and never changes. The data model decides
+  how many of everything there is.
+
+  kv-row-template is used TWICE, at two different depths, against two
+  different data shapes. One reviewed component, two jobs.

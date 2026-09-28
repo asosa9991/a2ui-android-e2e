@@ -1,0 +1,122 @@
+[
+  {
+    "start": 0.0,
+    "title": "Variable data, fixed templates"
+  },
+  {
+    "start": 4.0,
+    "title": "The problem"
+  },
+  {
+    "start": 36.687528,
+    "title": "Children can be a template"
+  },
+  {
+    "start": 68.367528,
+    "title": "The row, written once"
+  },
+  {
+    "start": 110.12244899999999,
+    "title": "2 \u2014 Relative paths"
+  },
+  {
+    "start": 113.12181399999999,
+    "title": "Templates inside templates"
+  },
+  {
+    "start": 164.016054,
+    "title": "You already do this"
+  },
+  {
+    "start": 204.256054,
+    "title": "3 \u2014 One tree, four datasets"
+  },
+  {
+    "start": 208.954376,
+    "title": "The four datasets"
+  },
+  {
+    "start": 240.87437599999998,
+    "title": "Empty"
+  },
+  {
+    "start": 260.143537,
+    "title": "One"
+  },
+  {
+    "start": 274.723681,
+    "title": "Forty"
+  },
+  {
+    "start": 308.819101,
+    "title": "Nested"
+  },
+  {
+    "start": 338.359373,
+    "title": "4 \u2014 What crossed the wire"
+  },
+  {
+    "start": 342.024271,
+    "title": "Structure once, data many times"
+  },
+  {
+    "start": 383.338012,
+    "title": "5 \u2014 A reviewed set"
+  },
+  {
+    "start": 389.882819,
+    "title": "The data picks, it does not compose"
+  },
+  {
+    "start": 455.202819,
+    "title": "6 \u2014 Degree, not kind"
+  },
+  {
+    "start": 459.63442899999995,
+    "title": "Bind the property, not the structure"
+  },
+  {
+    "start": 515.324044,
+    "title": "7 \u2014 Streaming into a template"
+  },
+  {
+    "start": 520.916652,
+    "title": "Send structure first, data when you have it"
+  },
+  {
+    "start": 569.695654,
+    "title": "8 \u2014 Where it breaks"
+  },
+  {
+    "start": 572.827173,
+    "title": "Three real limits"
+  },
+  {
+    "start": 648.985132,
+    "title": "9 \u2014 The escape hatch"
+  },
+  {
+    "start": 655.714248,
+    "title": "Move variability into a component"
+  },
+  {
+    "start": 728.934928,
+    "title": "10 \u2014 A worked review"
+  },
+  {
+    "start": 735.672162,
+    "title": "Seven requirements, two templates"
+  },
+  {
+    "start": 809.036742,
+    "title": "11 \u2014 Governance"
+  },
+  {
+    "start": 811.750166,
+    "title": "Reviewing a set, not a screen"
+  },
+  {
+    "start": 879.910166,
+    "title": "What to take away"
+  }
+]

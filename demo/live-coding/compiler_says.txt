@@ -1,0 +1,19 @@
+  $ ./gradlew assembleDebug
+
+  e: PositionRow.kt:45:3 'Content' overrides nothing.
+     Potential signatures for overriding:
+     fun A2uiComponentScope.Content(properties: A2uiComponentProperties,
+                                    modifier: Modifier): Unit
+
+  e: PositionRow.kt:52:24 Unresolved reference 'bind'.
+  e: PositionRow.kt:53:28 Unresolved reference 'bind'.
+
+  FAILURE: Build failed with an exception.
+
+
+  Content is an EXTENSION on A2uiComponentScope, not a plain method.
+  That is also why bind() was unresolved: inside the extension the
+  scope is the receiver, so its members are already in scope.
+
+  With no API reference published, this error message IS the
+  documentation. Guess the signature, build, and copy what it prints.

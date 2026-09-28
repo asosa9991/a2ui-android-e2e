@@ -1,0 +1,18 @@
+  ChildList        specification/v0_9_1/json/common_types.json
+
+  "children": oneOf [
+
+      [ "id_a", "id_b", "id_c" ]          a STATIC list of child ids
+
+      { "componentId": "row_template",    a TEMPLATE: render that one
+        "path": "/holdings" }             component once per item at path
+  ]
+
+  That second form is the whole answer to variable-length data.
+
+  path starting with  /   -> absolute, from the root of the data model
+  path without a slash    -> RELATIVE to the item currently rendering
+
+  Relative paths are what make nesting work. A template can itself
+  contain a template, so a fixed set of components renders a tree whose
+  depth and width you did not know when you wrote it.
