@@ -76,6 +76,20 @@ Build traps: AGP 9 rejects `org.jetbrains.kotlin.android`; `compileSdk` 37.1 is
 `compileSdk = 37` plus `compileSdkMinor = 1`; and Android Studio must be a 2026
 release or Gradle sync refuses AGP 9.4.1 while the command line builds fine.
 
+## The playground
+
+The app has two screens. The agent flow above, and a **playground** that renders
+pasted A2UI JSON — useful for checking a payload without wiring up an agent.
+
+- Accepts NDJSON, a JSON array, `{"messages": [ … ]}`, or a single message, and
+  pretty-printed or not (it splits on brace depth, not newlines).
+- Six bundled samples under `app/src/main/assets/samples/`, including one that
+  exercises the custom `PositionRow`.
+- It **adopts whatever `catalogId` the payload names**, building our component
+  set under that id. Without that, a payload written against the spec's basic
+  catalog would resolve nothing and render error chips — see the one-catalog-per
+  -surface rule in `docs/A2UI-ANDROID.md`.
+
 ## Adding A2UI to another app
 
 `docs/A2UI-ANDROID.md` is a task-oriented onboarding guide for the alpha

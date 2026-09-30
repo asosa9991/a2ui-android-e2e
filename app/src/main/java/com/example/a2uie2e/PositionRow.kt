@@ -87,9 +87,12 @@ const val POSITIONS_CATALOG_ID = "example.com:positions-v1"
  * catalogs and removes this constraint.)
  */
 fun extendedCatalog(base: A2uiCatalog): A2uiCatalog =
-  A2uiCatalog(
-    POSITIONS_CATALOG_ID,
-    base.components + PositionRow,
-    base.functions,
-    base.themeSchema,
-  )
+  catalogAs(POSITIONS_CATALOG_ID, base)
+
+/**
+ * The same catalog under an arbitrary id. The playground uses this to adopt
+ * whatever catalogId a pasted payload names, so a payload written against any
+ * catalog still resolves against the components we actually have.
+ */
+fun catalogAs(id: String, base: A2uiCatalog): A2uiCatalog =
+  A2uiCatalog(id, base.components + PositionRow, base.functions, base.themeSchema)

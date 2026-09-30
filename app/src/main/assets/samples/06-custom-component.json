@@ -1,0 +1,15 @@
+{
+  "name": "Custom component (PositionRow)",
+  "messages": [
+    {"version":"v0.9","createSurface":{"surfaceId":"custom","catalogId":"example.com:positions-v1","sendDataModel":true}},
+    {"version":"v0.9","updateComponents":{"surfaceId":"custom","components":[
+      {"id":"root","component":"Column","children":["title","list"],"justify":"start","align":"stretch"},
+      {"id":"title","component":"Text","text":"Holdings","variant":"h2"},
+      {"id":"list","component":"Column","children":{"componentId":"row","path":"/holdings"},"justify":"start","align":"stretch"},
+      {"id":"row","component":"PositionRow","symbol":{"path":"symbol"},"value":{"path":"value"},"kind":{"path":"kind"},"detail":{"path":"detail"}}]}},
+    {"version":"v0.9","updateDataModel":{"surfaceId":"custom","value":{"holdings":[
+      {"symbol":"AAPL","value":"$268,440.00","kind":"equity","detail":""},
+      {"symbol":"AAPL 260117C00200000","value":"$41,200.00","kind":"option","detail":"Jan 17 '26 $200 Call · delta 0.62"},
+      {"symbol":"912828YK0","value":"$198,640.00","kind":"bond","detail":"2.750% · matures Feb 15 2032"}]}}}
+  ]
+}

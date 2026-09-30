@@ -14,6 +14,12 @@ import androidx.a2ui.model.processor.A2uiMessageProcessor as CoreProcessor
 import androidx.a2ui.model.protocol.A2uiClientEventMessage
 import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.compose.foundation.layout.Box
+import androidx.a2ui.compose.ui.A2uiCatalog
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,22 +58,37 @@ private const val AGENT = "http://10.0.2.2:8765"
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContent { MaterialTheme { Surface(Modifier.fillMaxSize()) { TransferFlow() } } }
+    setContent {
+      MaterialTheme {
+        Surface(Modifier.fillMaxSize()) {
+          var playground by remember { mutableStateOf(false) }
+          val base = rememberMaterialCatalog()
+          if (playground) {
+            PlaygroundScreen(base) { playground = false }
+          } else {
+            TransferFlow(base) { playground = true }
+          }
+        }
+      }
+    }
   }
 }
 
+/** The Material catalog, built once and shared by both screens. */
 @Composable
-private fun TransferFlow() {
-  val catalog = remember {
-    materialA2uiBasicCatalogV1(
-      image = NoopImage,
-      video = NoopVideo,
-      audioPlayer = NoopAudio,
-      urlOpener = NoopUrlOpener,
-      messageFormatter = PassThroughMessageFormatter,
-      localeProvider = A2uiLocaleProvider.Default,
-    )
-  }
+fun rememberMaterialCatalog() = remember {
+  materialA2uiBasicCatalogV1(
+    image = NoopImage,
+    video = NoopVideo,
+    audioPlayer = NoopAudio,
+    urlOpener = NoopUrlOpener,
+    messageFormatter = PassThroughMessageFormatter,
+    localeProvider = A2uiLocaleProvider.Default,
+  )
+}
+
+@Composable
+private fun TransferFlow(catalog: A2uiCatalog, onOpenPlayground: () -> Unit) {
   // One catalog: Material's components plus ours, under our own id.
   val processor: CoreProcessor = remember { A2uiMessageProcessor(listOf(extendedCatalog(catalog))) }
   val parser = remember { A2uiMessageParser() }
@@ -94,6 +115,11 @@ private fun TransferFlow() {
   val surfaces: List<A2uiSurfaceModel> by processor.activeSurfaces.collectAsState()
   val surface = surfaces.lastOrNull()
 
+  Column(Modifier.fillMaxSize()) {
+    Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+        horizontalArrangement = Arrangement.End) {
+      TextButton(onClick = onOpenPlayground) { Text("Playground") }
+    }
   Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
     if (surface == null) {
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -104,6 +130,7 @@ private fun TransferFlow() {
     } else {
       A2uiSurface(surface)
     }
+  }
   }
 }
 

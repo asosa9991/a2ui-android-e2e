@@ -1,0 +1,371 @@
+{
+  "name": "Brokerage Positions (Grouped)",
+  "description": "Three-level nesting: asset-class groups, each with positions, each with its own open key-set of attributes.",
+  "messages": [
+    {
+      "version": "v0.9",
+      "createSurface": {
+        "surfaceId": "positions-blotter",
+        "catalogId": "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json",
+        "sendDataModel": true
+      }
+    },
+    {
+      "version": "v0.9",
+      "updateComponents": {
+        "surfaceId": "positions-blotter",
+        "components": [
+          {
+            "id": "root",
+            "component": "Card",
+            "child": "main-column"
+          },
+          {
+            "id": "main-column",
+            "component": "Column",
+            "children": [
+              "account-label",
+              "as-of",
+              "summary-list",
+              "divider",
+              "groups-list"
+            ],
+            "align": "stretch"
+          },
+          {
+            "id": "account-label",
+            "component": "Text",
+            "text": {
+              "path": "/account/label"
+            },
+            "variant": "h3"
+          },
+          {
+            "id": "as-of",
+            "component": "Text",
+            "text": {
+              "path": "/account/asOf"
+            },
+            "variant": "caption"
+          },
+          {
+            "id": "summary-list",
+            "component": "Column",
+            "children": {
+              "path": "/summary",
+              "componentId": "kv-row-template"
+            },
+            "align": "stretch"
+          },
+          {
+            "id": "divider",
+            "component": "Divider",
+            "axis": "horizontal"
+          },
+          {
+            "id": "position-template",
+            "component": "Column",
+            "children": [
+              "position-header",
+              "position-detail-list"
+            ],
+            "align": "stretch"
+          },
+          {
+            "id": "position-header",
+            "component": "Row",
+            "children": [
+              "position-identity",
+              "position-valuation"
+            ],
+            "justify": "spaceBetween",
+            "align": "start"
+          },
+          {
+            "id": "position-identity",
+            "component": "Column",
+            "children": [
+              "position-symbol",
+              "position-name"
+            ]
+          },
+          {
+            "id": "position-symbol",
+            "component": "Text",
+            "text": {
+              "path": "symbol"
+            },
+            "variant": "h5"
+          },
+          {
+            "id": "position-name",
+            "component": "Text",
+            "text": {
+              "path": "name"
+            },
+            "variant": "caption"
+          },
+          {
+            "id": "position-valuation",
+            "component": "Column",
+            "children": [
+              "position-value",
+              "position-change"
+            ],
+            "align": "end"
+          },
+          {
+            "id": "position-value",
+            "component": "Text",
+            "text": {
+              "path": "marketValue"
+            },
+            "variant": "body"
+          },
+          {
+            "id": "position-change",
+            "component": "Text",
+            "text": {
+              "path": "change"
+            },
+            "variant": "caption"
+          },
+          {
+            "id": "position-detail-list",
+            "component": "Column",
+            "children": {
+              "path": "details",
+              "componentId": "kv-row-template"
+            },
+            "align": "stretch"
+          },
+          {
+            "id": "kv-row-template",
+            "component": "Row",
+            "children": [
+              "kv-label",
+              "kv-value"
+            ],
+            "justify": "spaceBetween",
+            "align": "center"
+          },
+          {
+            "id": "kv-label",
+            "component": "Text",
+            "text": {
+              "path": "label"
+            },
+            "variant": "caption"
+          },
+          {
+            "id": "kv-value",
+            "component": "Text",
+            "text": {
+              "path": "value"
+            },
+            "variant": "body"
+          },
+          {
+            "id": "groups-list",
+            "component": "Column",
+            "children": {
+              "path": "/groups",
+              "componentId": "group-template"
+            },
+            "align": "stretch"
+          },
+          {
+            "id": "group-template",
+            "component": "Column",
+            "children": [
+              "group-header",
+              "group-positions-list"
+            ],
+            "align": "stretch"
+          },
+          {
+            "id": "group-header",
+            "component": "Row",
+            "children": [
+              "group-title",
+              "group-subtitle"
+            ],
+            "justify": "spaceBetween",
+            "align": "center"
+          },
+          {
+            "id": "group-title",
+            "component": "Text",
+            "text": {
+              "path": "title"
+            },
+            "variant": "h4"
+          },
+          {
+            "id": "group-subtitle",
+            "component": "Text",
+            "text": {
+              "path": "subtitle"
+            },
+            "variant": "caption"
+          },
+          {
+            "id": "group-positions-list",
+            "component": "Column",
+            "children": {
+              "path": "positions",
+              "componentId": "position-template"
+            },
+            "align": "stretch"
+          }
+        ]
+      }
+    },
+    {
+      "version": "v0.9",
+      "updateDataModel": {
+        "surfaceId": "positions-blotter",
+        "value": {
+          "account": {
+            "label": "Individual Brokerage \u2022\u20224417",
+            "asOf": "As of Mar 14, 2026 4:00 PM ET"
+          },
+          "summary": [
+            {
+              "label": "Total Value",
+              "value": "$1,284,930.22"
+            },
+            {
+              "label": "Day Change",
+              "value": "+$8,412.55 (+0.66%)"
+            }
+          ],
+          "groups": [
+            {
+              "title": "Equities",
+              "subtitle": "2 positions \u00b7 $612,480.00",
+              "positions": [
+                {
+                  "symbol": "AAPL",
+                  "name": "Apple Inc. \u2014 Equity",
+                  "marketValue": "$268,440.00",
+                  "change": "+$2,140.00 (+0.80%)",
+                  "details": [
+                    {
+                      "label": "Quantity",
+                      "value": "1,200 sh"
+                    },
+                    {
+                      "label": "Avg Cost",
+                      "value": "$178.22"
+                    },
+                    {
+                      "label": "Unrealized P/L",
+                      "value": "+$54,576.00"
+                    },
+                    {
+                      "label": "Dividend Yield",
+                      "value": "0.44%"
+                    }
+                  ]
+                },
+                {
+                  "symbol": "MSFT",
+                  "name": "Microsoft Corp. \u2014 Equity",
+                  "marketValue": "$344,040.00",
+                  "change": "+$1,902.00 (+0.56%)",
+                  "details": [
+                    {
+                      "label": "Quantity",
+                      "value": "820 sh"
+                    },
+                    {
+                      "label": "Avg Cost",
+                      "value": "$291.04"
+                    },
+                    {
+                      "label": "Unrealized P/L",
+                      "value": "+$105,387.20"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Options",
+              "subtitle": "1 position \u00b7 $41,200.00",
+              "positions": [
+                {
+                  "symbol": "AAPL  260117C00200000",
+                  "name": "AAPL Jan 17 '26 $200 Call \u2014 Option",
+                  "marketValue": "$41,200.00",
+                  "change": "+$1,850.00 (+4.70%)",
+                  "details": [
+                    {
+                      "label": "Contracts",
+                      "value": "10"
+                    },
+                    {
+                      "label": "Strike",
+                      "value": "$200.00"
+                    },
+                    {
+                      "label": "Expiry",
+                      "value": "Jan 17, 2026"
+                    },
+                    {
+                      "label": "Delta",
+                      "value": "0.62"
+                    },
+                    {
+                      "label": "Implied Vol",
+                      "value": "28.4%"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Fixed Income",
+              "subtitle": "1 position \u00b7 $198,640.00",
+              "positions": [
+                {
+                  "symbol": "912828YK0",
+                  "name": "US Treasury Note 2.75% 2032 \u2014 Fixed Income",
+                  "marketValue": "$198,640.00",
+                  "change": "-$312.00 (-0.16%)",
+                  "details": [
+                    {
+                      "label": "Face Value",
+                      "value": "$200,000.00"
+                    },
+                    {
+                      "label": "Coupon",
+                      "value": "2.750%"
+                    },
+                    {
+                      "label": "Maturity",
+                      "value": "Feb 15, 2032"
+                    },
+                    {
+                      "label": "Yield to Maturity",
+                      "value": "4.118%"
+                    },
+                    {
+                      "label": "Accrued Interest",
+                      "value": "$1,204.86"
+                    },
+                    {
+                      "label": "Rating",
+                      "value": "AAA"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
